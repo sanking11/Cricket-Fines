@@ -52,8 +52,45 @@
       100%{background-position:0% 50%}
     }
 
+    @keyframes neonBorder{
+      0%, 100%{
+        border-color: rgba(0,255,136,0.3);
+        box-shadow: 0 0 10px rgba(0,255,136,0.2), inset 0 0 10px rgba(0,255,136,0.1);
+      }
+      50%{
+        border-color: rgba(0,255,136,0.8);
+        box-shadow: 0 0 20px rgba(0,255,136,0.5), inset 0 0 15px rgba(0,255,136,0.2);
+      }
+    }
+
+    @keyframes neonGlow{
+      0%, 100%{
+        box-shadow: 0 0 5px rgba(0,255,136,0.3);
+      }
+      50%{
+        box-shadow: 0 0 15px rgba(0,255,136,0.6);
+      }
+    }
+
     .wrap{max-width:1200px; margin:0 auto; position:relative; z-index:2;}
     .row{ display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      body { padding: 16px; }
+      .wrap { padding: 0; }
+      .row { grid-template-columns: 1fr; gap: 12px; }
+      h1 { font-size: 24px; letter-spacing: 3px; }
+      .card { padding: 16px; }
+      table { font-size: 14px; }
+      td, th { padding: 8px 6px; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 20px; letter-spacing: 2px; }
+      .card { padding: 12px; margin-bottom: 12px; }
+      input, select, button { font-size: 14px; padding: 10px; }
+    }
 
     /* Glass container vibe */
     .card{
@@ -61,11 +98,12 @@
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border-radius: var(--radius);
-      border:1px solid var(--stroke);
+      border:2px solid rgba(0,255,136,0.3);
       padding:24px;
       margin-bottom:18px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 0 40px rgba(0,255,136,0.10);
       position: relative;
+      animation: neonBorder 3s ease-in-out infinite;
     }
 
     h1{
@@ -110,8 +148,9 @@
     input::placeholder, textarea::placeholder{ color: rgba(255,255,255,.65); }
     input:focus, select:focus, textarea:focus{
       outline:none; border-color: var(--accent);
-      box-shadow: 0 0 20px rgba(0,255,136,0.35);
+      box-shadow: 0 0 20px rgba(0,255,136,0.5);
       background: rgba(255,255,255,0.15);
+      animation: neonGlow 2s ease-in-out infinite;
     }
 
     .btn{ cursor:pointer; border:2px solid var(--accent); background: rgba(255,255,255,0.15); color: var(--accent);
@@ -122,7 +161,31 @@
     .btn.danger{ border-color: var(--danger); color: var(--danger); background: rgba(255,68,68,0.2); }
     .btn:disabled{ opacity:.5; cursor:not-allowed; }
 
-    table{ width:100%; border-collapse: collapse; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius:15px; overflow:hidden; }
+    table{ 
+      width:100%; 
+      border-collapse: collapse; 
+      background: rgba(255,255,255,0.05); 
+      backdrop-filter: blur(10px); 
+      border-radius:15px; 
+      overflow:hidden; 
+      border: 2px solid rgba(0,255,136,0.3);
+      animation: neonBorder 4s ease-in-out infinite;
+    }
+    
+    /* Mobile table wrapper */
+    @media (max-width: 768px) {
+      .card > div:has(table) {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      table {
+        min-width: 600px;
+        font-size: 13px;
+      }
+      th, td {
+        white-space: nowrap;
+      }
+    }
     th{ background: rgba(255,255,255,0.15); color: var(--accent); padding:15px; text-align:left;
         font-weight:700; font-family:'Orbitron', sans-serif; letter-spacing:1.5px; text-transform:uppercase; font-size:.8em; }
     td{ padding:12px 15px; color:#fff; border-bottom:1px solid rgba(255,255,255,0.1); }
@@ -243,7 +306,7 @@
         </div>
       </div>
 
-      <div class="card" style="overflow:auto; max-height: 55vh;">
+      <div class="card" style="overflow:auto; max-height: 55vh; -webkit-overflow-scrolling: touch;">
         <table id="dataTable">
           <thead>
             <tr>
@@ -263,7 +326,7 @@
         <h3 style="margin-top:0; font-family:'Orbitron', sans-serif; letter-spacing:2px; color:var(--accent)">Summaries</h3>
         
         <!-- Overall Stats -->
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:16px; margin-bottom:24px;">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px; margin-bottom:24px;">
           <!-- Total Fines -->
           <div style="padding:20px; background:linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,255,136,0.05)); border-radius:12px; border:2px solid rgba(0,255,136,0.3); text-align:center;">
             <div style="font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; font-weight:600;">💰 Total Fines</div>
@@ -304,6 +367,14 @@
             <div id="unpaidByPlayer" style="display:flex; flex-direction:column; gap:6px;"></div>
           </div>
         </div>
+        
+        <style>
+          @media (max-width: 768px) {
+            .card > div:has(#totalsByPlayer) {
+              grid-template-columns: 1fr !important;
+            }
+          }
+        </style>
       </div>
 
       <div class="card">
