@@ -157,7 +157,8 @@
       <h3 style="margin:0 0 10px; font-family:'Audiowide', sans-serif; letter-spacing:2px; color:var(--accent)">Enter Shared Password</h3>
       <div class="row">
         <div><label>Password</label><input id="gatePassword" type="password" placeholder="Team password" /></div>
-        <div style="align-self:end">\1 onclick="window.__unlock()"\2Unlock</button></div>
+       <button id="gateBtn" class="btn primary" style="align-self:end" onclick="window.__unlock()">Unlock</button>
+
       </div>
       <p class="muted">This gate is just for viewing access. Cloud permissions are controlled by Supabase Auth.</p>
     </div>
