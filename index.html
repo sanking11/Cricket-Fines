@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cricket Fines 2025 - Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Exo+2:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#07110c;
+      --text:#eafff3;
+      --muted:rgba(255,255,255,.75);
+      --accent:#00ff88;
+      --accent-soft:#7cffb2;
+      --danger:#ff4444;
+      --stroke: rgba(255,255,255,0.18);
+      --card-bg: rgba(255,255,255,0.08);
+      --radius: 20px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      padding:28px;
+      color:var(--text);
+      background:#07110c;
+      font-family:'Exo 2', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      letter-spacing:.2px;
+      overflow-x:hidden;
+    }
+    /* Animated Gradient Background from your design */
+    .animated-bg{
+      position:fixed; inset:0; z-index:0;
+      background: linear-gradient(135deg,
+        #0a1f1f 0%,
+        #1a2f3a 25%,
+        #0d2818 50%,
+        #16213e 75%,
+        #0a1f1f 100%
+      );
+      background-size:400% 400%;
+      animation: gradientShift 18s ease infinite;
+    }
+    @keyframes gradientShift{
+      0%{background-position:0% 50%}
+      25%{background-position:50% 75%}
+      50%{background-position:100% 50%}
+      75%{background-position:50% 25%}
+      100%{background-position:0% 50%}
+    }
+
+    .wrap{max-width:1200px; margin:0 auto; position:relative; z-index:2;}
+    .row{ display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); }
+
+    /* Glass container vibe */
+    .card{
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius);
+      border:1px solid var(--stroke);
+      padding:24px;
+      margin-bottom:18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 0 40px rgba(0,255,136,0.10);
+      position: relative;
+    }
+
+    h1{
+      margin: 0 0 18px;
+      font-family: 'Audiowide', sans-serif;
+      font-weight:400;
+      letter-spacing:4px;
+      color: var(--accent);
+      text-shadow: 0 0 20px rgba(0,255,136,0.5);
+      animation: futuristicGlow 2s ease-in-out infinite;
+    }
+    @keyframes futuristicGlow{
+      0%,100%{
+        text-shadow:
+          0 0 10px rgba(0,255,136,.8),
+          0 0 20px rgba(0,255,136,.6),
+          0 0 30px rgba(0,255,136,.4),
+          0 0 40px rgba(0,255,136,.2);
+        filter: brightness(1);
+      }
+      50%{
+        text-shadow:
+          0 0 20px rgba(0,255,136,1),
+          0 0 40px rgba(0,255,136,.8),
+          0 0 60px rgba(0,255,136,.6),
+          0 0 80px rgba(0,255,136,.4),
+          0 0 100px rgba(0,255,136,.2);
+        filter: brightness(1.15);
+      }
+    }
+
+    label{display:block; color: var(--accent); margin-bottom:8px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; font-size:.85em;}
+    input, select, button, textarea{
+      width:100%; padding:12px;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius:10px;
+      color:#fff; font-size:16px; transition: all .25s ease;
+      font-family:'Exo 2', sans-serif;
+    }
+    input::placeholder, textarea::placeholder{ color: rgba(255,255,255,.65); }
+    input:focus, select:focus, textarea:focus{
+      outline:none; border-color: var(--accent);
+      box-shadow: 0 0 20px rgba(0,255,136,0.35);
+      background: rgba(255,255,255,0.15);
+    }
+
+    .btn{ cursor:pointer; border:2px solid var(--accent); background: rgba(255,255,255,0.15); color: var(--accent);
+          text-transform: uppercase; font-weight:800; letter-spacing:2px; text-shadow:0 0 10px rgba(0,255,136,0.5); }
+    .btn:hover{ background: rgba(0,255,136,0.25); box-shadow:0 0 25px rgba(0,255,136,0.6); transform: translateY(-2px); }
+    .btn.primary{ border-color: var(--accent); color: #04110b; background: linear-gradient(180deg, rgba(0,255,136,.9), rgba(0,255,136,.55)); }
+    .btn.secondary{ border-color: rgba(255,255,255,0.3); color: #fff; background: rgba(255,255,255,0.1); }
+    .btn.danger{ border-color: var(--danger); color: var(--danger); background: rgba(255,68,68,0.2); }
+    .btn:disabled{ opacity:.5; cursor:not-allowed; }
+
+    table{ width:100%; border-collapse: collapse; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius:15px; overflow:hidden; }
+    th{ background: rgba(255,255,255,0.15); color: var(--accent); padding:15px; text-align:left;
+        font-weight:700; font-family:'Audiowide', sans-serif; letter-spacing:1.5px; text-transform:uppercase; font-size:.8em; }
+    td{ padding:12px 15px; color:#fff; border-bottom:1px solid rgba(255,255,255,0.1); }
+    tr:hover{ background: rgba(255,255,255,0.08); }
+    .muted{ color: var(--muted); font-size: .9em; }
+
+    .tag{ font-size: 11px; padding:4px 8px; background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.2); border-radius:999px; }
+    .hidden{ display:none !important; }
+
+    .statusline{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .dot{ width:10px; height:10px; border-radius:50%; background: var(--accent); display:inline-block; box-shadow: 0 0 12px currentColor; }
+
+    .locked::after{
+      content:"VIEW ONLY — sign in as admin to add";
+      position:absolute; inset:auto 12px 12px 12px;
+      background: linear-gradient(180deg, rgba(7,17,12,.6), rgba(7,17,12,.85));
+      border:1px dashed rgba(255,255,255,.35); color: var(--muted);
+      padding:10px 12px; border-radius:12px; text-align:center; letter-spacing:.3px;
+    }
+    .locked .mask{ position:absolute; inset:0; backdrop-filter: blur(4px) saturate(120%); background: rgba(7,17,12,.35); pointer-events:none; }
+    .locked .content *{ filter: blur(1px) brightness(.95); pointer-events:none; user-select:none; }
+  </style>
+</head>
+<body>
+  <div class="animated-bg" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <h1>CRICKET FINES TRACKER 2025</h1>
+    <p class="muted" style="margin-bottom:16px">Neon-glass UI based on your design. Static shared password gate. Supabase cloud (read-only for players, write for admins).</p>
+
+    <!-- Static Gate -->
+    <div class="card" id="gateCard">
+      <h3 style="margin:0 0 10px; font-family:'Audiowide', sans-serif; letter-spacing:2px; color:var(--accent)">Enter Shared Password</h3>
+      <div class="row">
+        <div><label>Password</label><input id="gatePassword" type="password" placeholder="Team password" /></div>
+        <div style="align-self:end"><button class="btn primary" id="gateBtn">Unlock</button></div>
+      </div>
+      <p class="muted">This gate is just for viewing access. Cloud permissions are controlled by Supabase Auth.</p>
+    </div>
+
+    <!-- App -->
+    <div id="app" class="hidden">
+      <div class="card">
+        <div class="row">
+          <div>
+            <label>Status</label>
+            <div class="statusline">
+              <span id="status">Local</span>
+              <span id="statusCloud" class="dot hidden"></span>
+              <span id="statusRealtime" class="dot hidden"></span>
+            </div>
+          </div>
+          <div>
+            <label>Cloud Mode</label>
+            <select id="cloudMode">
+              <option value="local">Local (no cloud)</option>
+              <option value="cloud_read">Cloud — Read-only</option>
+              <option value="cloud_write">Cloud — Admin write</option>
+            </select>
+          </div>
+          <div>
+            <label>Realtime</label>
+            <select id="realtimeMode">
+              <option value="off">Off</option>
+              <option value="on">On</option>
+            </select>
+          </div>
+          <div style="align-self:end"><button id="lockBtn" class="btn secondary">Lock</button></div>
+        </div>
+      </div>
+
+      <div class="card" id="settingsCard">
+        <h3 style="margin-top:0; font-family:'Audiowide', sans-serif; letter-spacing:2px; color:var(--accent)">Supabase Settings</h3>
+        <div class="row">
+          <div><label>Project URL</label><input id="supabaseUrl" placeholder="https://YOUR-PROJECT.supabase.co" /></div>
+          <div><label>Anon Key</label><input id="supabaseKey" placeholder="ey..." /></div>
+          <div><label>Auth Email</label><input id="authEmail" placeholder="player@team or admin@team" /></div>
+          <div><label>Auth Password</label><input id="authPass" type="password" placeholder="••••••••" /></div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button id="saveSettings" class="btn secondary">Save Settings</button>
+          <button id="authSignIn" class="btn primary">Supabase Sign In</button>
+          <button id="authSignOut" class="btn secondary">Sign Out</button>
+          <button id="pullBtn" class="btn secondary">Load from Cloud</button>
+          <button id="pushBtn" class="btn secondary">Push to Cloud (overwrite)</button>
+        </div>
+        <p class="muted">Players: sign in with the shared <em>player</em> account (read-only). Admins: use the <em>admin</em> account to enable cloud writes.</p>
+      </div>
+
+      <div class="card" id="addCard">
+        <div class="mask hidden"></div>
+        <div class="content">
+          <h3 style="margin-top:0; font-family:'Audiowide', sans-serif; letter-spacing:2px; color:var(--accent)">Add Fine</h3>
+          <div class="row">
+            <div><label>Season</label><input id="season" placeholder="e.g., 2025" /></div>
+            <div><label>Player</label><input id="player" placeholder="e.g., Vinit" /></div>
+            <div><label>Match</label><input id="match" placeholder="e.g., Match 1 or 2025-05-12" /></div>
+            <div><label>Reason</label><input id="reason" placeholder="e.g., Late arrival" /></div>
+            <div><label>Amount</label><input id="amount" type="number" step="1" min="0" placeholder="5" /></div>
+            <div><label>Paid?</label><select id="paid"><option value="false" selected>No</option><option value="true">Yes</option></select></div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button id="addBtn" class="btn primary">Add fine</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <div><label>Filter: Player</label><input id="filterPlayer" placeholder="All players" /></div>
+          <div><label>Filter: Match</label><input id="filterMatch" placeholder="All matches" /></div>
+          <div><label>Filter: Paid</label><select id="filterPaid"><option value="">All</option><option value="true">Paid</option><option value="false">Unpaid</option></select></div>
+          <div style="align-self:end"><button id="clearFilters" class="btn secondary">Clear filters</button></div>
+        </div>
+      </div>
+
+      <div class="card" style="overflow:auto; max-height: 55vh;">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Match</th>
+              <th>Reason</th>
+              <th style="text-align:right">Amount</th>
+              <th style="text-align:center">Paid?</th>
+              <th style="text-align:right">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0; font-family:'Audiowide', sans-serif; letter-spacing:2px; color:var(--accent)">Summaries</h3>
+        <div class="row">
+          <div><h4 style="margin:0 0 8px">Totals by Player</h4><div id="totalsByPlayer"></div></div>
+          <div><h4 style="margin:0 0 8px">Totals by Match</h4><div id="totalsByMatch"></div></div>
+          <div><h4 style="margin:0 0 8px">By Player × Match</h4><div id="totalsByPlayerMatch"></div></div>
+          <div><h4 style="margin:0 0 8px">Unpaid by Player</h4><div id="unpaidByPlayer"></div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <button id="exportBtn" class="btn secondary">Export CSV</button>
+          <button id="importBtn" class="btn secondary">Import CSV</button>
+          <input type="file" id="fileInput" accept=".csv,text/csv" class="hidden" />
+          <button id="clearAll" class="btn danger">Clear Local Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // ======= Static gate password =======
+    const STATIC_PASSWORD = "TeamFines@2025?";
+    // ======= Presets for GitHub Pages build (supplied by Sunny) =======
+    const PRESET_SUPABASE_URL = "https://zkosstrhmgwvwpbdnqqs.supabase.co";
+    const PRESET_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprb3NzdHJobWd3dndwYmRucXFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMTAxMDEsImV4cCI6MjA3Nzc4NjEwMX0.MN2_mhUZZ5x31W_Cn9a1sbw0QFG8XT_8WTP4CTBQTR8";
+    const PRESET_ADMIN_EMAIL   = "admin@fake1.lol";
+    function maybePrimeDefaults(){
+      const hasSettings = !!localStorage.getItem(SET_KEY);
+      if(!hasSettings){
+        const pack = { url: PRESET_SUPABASE_URL, key: PRESET_SUPABASE_ANON, email: PRESET_ADMIN_EMAIL };
+        localStorage.setItem(SET_KEY, JSON.stringify(pack));
+      }
+      if(!localStorage.getItem(CLOUD_MODE_KEY)){
+        localStorage.setItem(CLOUD_MODE_KEY, 'cloud_read');
+      }
+      if(!localStorage.getItem(REALTIME_KEY)){
+        localStorage.setItem(REALTIME_KEY, 'off');
+      }
+    }
+
+    // ===================================
+
+    // Local keys
+    const LS_KEY="fines_neon_reskin_local_v1", SET_KEY="fines_neon_reskin_settings_v1", GATE_KEY="fines_neon_reskin_gate_v1";
+    const CLOUD_MODE_KEY="fines_glass_cloud_mode", REALTIME_KEY="fines_glass_realtime";
+
+    // Supabase
+    let supabase=null, supaAuth=null, realtimeChannel=null;
+    let supaCfg={ url:"", key:"" };
+
+    const $ = (id)=>document.getElementById(id);
+    const canWrite = ()=> $('cloudMode').value === 'cloud_write' && !!supaAuth?.user;
+    const inCloud = ()=> $('cloudMode').value.startsWith('cloud');
+    const realtimeOn = ()=> $('realtimeMode').value === 'on';
+
+    // Unlock gate
+    function sha256(s){ const e=new TextEncoder(); return crypto.subtle.digest('SHA-256', e.encode(s)).then(b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')); }
+    async function unlock(pass){
+      const [a,b]=await Promise.all([sha256(STATIC_PASSWORD), sha256(pass)]);
+      if(a===b){ localStorage.setItem(GATE_KEY,a); showApp(true);} else { alert('Wrong password'); }
+    }
+    function showApp(yes){ $('gateCard').classList[yes?'add':'remove']('hidden'); $('app').classList[yes?'remove':'add']('hidden'); if(yes){ maybePrimeDefaults(); loadSettings(); render(getData()); }}
+    $('gateBtn').addEventListener('click', async ()=> unlock($('gatePassword').value));
+    $('lockBtn').addEventListener('click', ()=>{ localStorage.removeItem(GATE_KEY); showApp(false); });
+    (async()=>{ const s=localStorage.getItem(GATE_KEY); if(s && s===await sha256(STATIC_PASSWORD)) showApp(true); })();
+
+    // Settings
+    function saveSettings(){
+      supaCfg={ url:$('supabaseUrl').value.trim(), key:$('supabaseKey').value.trim() };
+      const pack={ ...supaCfg, email:$('authEmail').value.trim()? $('authEmail').value.trim():null };
+      localStorage.setItem(SET_KEY, JSON.stringify(pack));
+      localStorage.setItem(CLOUD_MODE_KEY, $('cloudMode').value);
+      localStorage.setItem(REALTIME_KEY, $('realtimeMode').value);
+      setupSupabase();
+    }
+    function loadSettings(){
+      const raw=localStorage.getItem(SET_KEY);
+      if(raw){ try{ const s=JSON.parse(raw); supaCfg.url=s.url||""; supaCfg.key=s.key||""; $('supabaseUrl').value=supaCfg.url; $('supabaseKey').value=supaCfg.key; $('authEmail').value=s.email||"";}catch{} } else {
+        supaCfg.url = PRESET_SUPABASE_URL; supaCfg.key = PRESET_SUPABASE_ANON; $('supabaseUrl').value=supaCfg.url; $('supabaseKey').value=supaCfg.key; $('authEmail').value=PRESET_ADMIN_EMAIL;
+      }
+      $('cloudMode').value = localStorage.getItem(CLOUD_MODE_KEY) || 'cloud_read';
+      $('realtimeMode').value = localStorage.getItem(REALTIME_KEY) || 'off';
+      updateStatus();
+    }
+    $('saveSettings').addEventListener('click', saveSettings);
+
+    async function setupSupabase(){
+      if(supaCfg.url && supaCfg.key){
+        if(!window.Supabase){ await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm'); }
+        const { createClient } = window.Supabase;
+        supabase = createClient(supaCfg.url, supaCfg.key);
+        supaAuth = supabase.auth;
+      } else { supabase=null; supaAuth=null; }
+      manageRealtime();
+      updateStatus();
+    }
+    await setupSupabase();
+
+    // Auth
+    $('authSignIn').addEventListener('click', async()=>{
+      if(!supabase){ alert('Add Supabase URL & anon key'); return; }
+      const email=$('authEmail').value.trim(), pwd=$('authPass').value;
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password: pwd });
+      if(error){ alert(error.message); return; }
+      updateStatus();
+      if(inCloud()) await pull();
+    });
+    $('authSignOut').addEventListener('click', async()=>{
+      if(supabase){ await supabase.auth.signOut(); }
+      updateStatus();
+    });
+
+    // Mode toggles
+    $('cloudMode').addEventListener('change', ()=>{ localStorage.setItem(CLOUD_MODE_KEY, $('cloudMode').value); updateStatus(); });
+    $('realtimeMode').addEventListener('change', ()=>{ localStorage.setItem(REALTIME_KEY, $('realtimeMode').value); manageRealtime(); updateStatus(); });
+
+    function updateStatus(){
+      const parts=[];
+      if($('cloudMode').value==='local'){ parts.push('Local'); }
+      else if($('cloudMode').value==='cloud_read'){ parts.push('Cloud read'); }
+      else { parts.push('Cloud admin write'); }
+      if(supaAuth?.user){ parts.push(`Signed in: ${$('authEmail').value||supaAuth.user.email||'user'}`); }
+      $('status').textContent = parts.join(' • ');
+      $('statusCloud').classList[inCloud()?'remove':'add']('hidden');
+      $('statusRealtime').classList[realtimeOn()&&inCloud()?'remove':'add']('hidden');
+
+      const addCard = $('addCard');
+      const lock = inCloud() && !canWrite();
+      addCard.classList[lock?'add':'remove']('locked');
+      addCard.querySelector('.mask').classList[lock?'remove':'add']('hidden');
+      addCard.querySelectorAll('input,select,button').forEach(el => { el.disabled = lock; });
+
+      render(getData());
+    }
+
+    async function manageRealtime(){
+      if(!supabase || !realtimeOn() || !inCloud()){ if(realtimeChannel){ await realtimeChannel.unsubscribe(); realtimeChannel=null; } return; }
+      if(realtimeChannel) return;
+      realtimeChannel = supabase
+        .channel('public:fines-changes')
+        .on('postgres_changes',{ event:'*', schema:'public', table:'fines' }, async ()=>{ await pull(); })
+        .subscribe();
+    }
+
+    // Data
+    function getData(){ const r=localStorage.getItem(LS_KEY); try{ return r? JSON.parse(r):[] }catch{ return [] } }
+    function setData(arr){ localStorage.setItem(LS_KEY, JSON.stringify(arr)); render(arr); }
+
+    function groupBy(a, f){ return a.reduce((m,x)=>{ const k=f(x); (m[k]??=[]).push(x); return m; },{}); }
+    const fmt = n => (n==null||isNaN(n))? "" : Number(n).toLocaleString(undefined,{maximumFractionDigits:0});
+
+    function render(all){
+      const rows = applyFilters(all);
+      const tb = document.querySelector('#dataTable tbody'); tb.innerHTML='';
+
+      const showDelete = canWrite() || !inCloud(); // hide delete in cloud read-only
+      for(const r of rows){
+        const delCell = showDelete ? `<button class="btn secondary delBtn" data-id="${r.id}">Delete</button>` : `<span class="muted">—</span>`;
+        const paidToggle = (canWrite() || !inCloud())
+          ? `<input type="checkbox" ${r.paid?'checked':''} data-id="${r.id}" class="paidToggle"/>`
+          : `<input type="checkbox" ${r.paid?'checked':''} disabled/>`;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><strong>${r.player||''}</strong></td>
+          <td>${r.match||''}</td>
+          <td>${r.reason||''}</td>
+          <td style="text-align:right">${fmt(r.amount)}</td>
+          <td style="text-align:center">${paidToggle}</td>
+          <td style="text-align:right">${delCell}</td>`;
+        tb.appendChild(tr);
+      }
+
+      tb.querySelectorAll('.paidToggle').forEach(cb=> {
+        cb.addEventListener('change', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          const cur = getData().find(x=>x.id===id); if(!cur) return;
+          const patch = { paid: !cur.paid };
+          if(canWrite()){ await upsertCloud({ ...cur, ...patch }); await pull(); } else { setData(getData().map(x=>x.id===id?{...x,...patch}:x)); }
+        });
+      });
+      tb.querySelectorAll('.delBtn').forEach(btn=> {
+        btn.addEventListener('click', async (e)=>{
+          const id = e.currentTarget.getAttribute('data-id');
+          if(!confirm('Delete this fine?')) return;
+          if(canWrite()){ await deleteCloud(id); await pull(); } else { setData(getData().filter(x=>x.id!==id)); }
+        });
+      });
+
+      // Summaries
+      const sum = arr => arr.reduce((t,r)=> t+(Number(r.amount)||0), 0);
+      const unpaid = arr => arr.filter(r=>!r.paid).reduce((t,r)=> t+(Number(r.amount)||0), 0);
+      const byP = groupBy(rows, r=> r.player||'');
+      const byM = groupBy(rows, r=> r.match||'');
+      const byPM = groupBy(rows, r=> (r.player||'')+' • '+(r.match||''));
+      document.getElementById('totalsByPlayer').innerHTML = Object.entries(byP).sort((a,b)=>sum(b[1])-sum(a[1])).map(([k,v])=> `<span class="tag">${k||'(blank)'}: <b>${fmt(sum(v))}</b></span>`).join(' ');
+      document.getElementById('totalsByMatch').innerHTML = Object.entries(byM).sort((a,b)=>sum(b[1])-sum(a[1])).map(([k,v])=> `<span class="tag">${k||'(blank)'}: <b>${fmt(sum(v))}</b></span>`).join(' ');
+      document.getElementById('totalsByPlayerMatch').innerHTML = Object.entries(byPM).sort((a,b)=>sum(b[1])-sum(a[1])).map(([k,v])=> `<span class="tag">${k||'(blank)'}: <b>${fmt(sum(v))}</b></span>`).join(' ');
+      document.getElementById('unpaidByPlayer').innerHTML = Object.entries(byP).sort((a,b)=>unpaid(b[1])-unpaid(a[1])).map(([k,v])=> {
+        const t=sum(v), u=unpaid(v), p=t-u;
+        return `<span class="tag">${k||'(blank)'} — <span style="color:#ff99a5">Unpaid: <b>${fmt(u)}</b></span> • <span style="color:#82f5c8">Paid: <b>${fmt(p)}</b></span></span>`;
+      }).join(' ');
+
+      document.getElementById('statusCloud').classList[inCloud()?'remove':'add']('hidden');
+      document.getElementById('statusRealtime').classList[realtimeOn()&&inCloud()?'remove':'add']('hidden');
+    }
+
+    function applyFilters(rows){
+      const p=$('filterPlayer').value.trim().toLowerCase();
+      const m=$('filterMatch').value.trim().toLowerCase();
+      const paid=$('filterPaid').value;
+      return rows.filter(r=>{
+        const a=!p || (r.player||'').toLowerCase().includes(p);
+        const b=!m || (r.match||'').toLowerCase().includes(m);
+        const c=!paid || String(!!r.paid)===paid;
+        return a && b && c;
+      });
+    }
+    $('filterPlayer').addEventListener('input', ()=>render(getData()));
+    $('filterMatch').addEventListener('input', ()=>render(getData()));
+    $('filterPaid').addEventListener('change', ()=>render(getData()));
+    $('clearFilters').addEventListener('click', ()=>{ $('filterPlayer').value=''; $('filterMatch').value=''; $('filterPaid').value=''; render(getData()); });
+
+    // Add
+    $('addBtn').addEventListener('click', ()=> addN(1));
+    async function addN(n){
+      const rec = ()=>({ id: crypto.randomUUID(), season:$('season').value.trim(), player:$('player').value.trim(), match:$('match').value.trim(), reason:$('reason').value.trim(), amount:Number($('amount').value), paid: $('paid').value==='true', createdAt:new Date().toISOString() });
+      if(inCloud() && !canWrite()){ alert('Cloud write disabled for this account/mode.'); return; }
+      for(let i=0;i<n;i++){
+        const r = rec();
+        if(inCloud()){ await upsertCloud(r); } else { setData(getData().concat([r])); }
+      }
+      if(inCloud()) await pull();
+      $('reason').value=''; $('amount').value=''; $('reason').focus();
+    }
+
+    // CSV
+    $('exportBtn').addEventListener('click', ()=>{
+      const rows=getData(), headers=["id","season","player","match","reason","amount","paid","createdAt"];
+      const csv=[headers.join(",")].concat(rows.map(r=> headers.map(h=>{
+        const v=r[h]??""; const need=/[\",\n]/.test(String(v)); const safe=String(v).replace(/\"/g,'\"\"'); return need?`\"${safe}\"`:safe;
+      }).join(","))).join("\n");
+      const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"}), url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url; a.download="fines.csv"; a.click(); URL.revokeObjectURL(url);
+    });
+    $('importBtn').addEventListener('click', ()=> $('fileInput').click());
+    $('fileInput').addEventListener('change', async (e)=>{
+      const f=e.target.files[0]; if(!f) return;
+      const t=await f.text(); const [head,...lines]=t.split(/\r?\n/).filter(Boolean);
+      const cols=head.split(",");
+      const idx=(h)=> cols.indexOf(h);
+      const req=["season","player","match","reason","amount","paid"];
+      if(!req.every(r=> idx(r)>=0)){ alert("CSV must include: "+req.join(", ")); return; }
+      const parsed=lines.map(line=>{
+        const out=[]; let cur='', q=false; for(let i=0;i<line.length;i++){ const c=line[i]; if(c=='\"'){ if(q&&line[i+1]=='\"'){ cur+='\"'; i++; } else { q=!q; } } else if(c==',' && !q){ out.push(cur); cur=''; } else { cur+=c; } } out.push(cur);
+        const g=(h)=> (out[idx(h)]??'').replace(/^\"|\"$/g,'');
+        return { id: crypto.randomUUID(), season:g('season'), player:g('player'), match:g('match'), reason:g('reason'), amount:Number(g('amount')||0), paid:String(g('paid')).toLowerCase()==='true', createdAt:new Date().toISOString() };
+      });
+      if(inCloud()){ for(const r of parsed) await upsertCloud(r); await pull(); } else { setData(getData().concat(parsed)); }
+      e.target.value=''; alert('Import complete.');
+    });
+    $('pullBtn').addEventListener('click', pull);
+    $('pushBtn').addEventListener('click', async ()=>{
+      if(!supabase){ alert('Add Supabase settings'); return; }
+      if(!canWrite()){ alert('Sign in as admin & choose Cloud — Admin write'); return; }
+      if(!confirm('Replace ALL rows in cloud with local data?')) return;
+      const { error: delErr } = await supabase.from('fines').delete().neq('id','00000000-0000-0000-0000-000000000000');
+      if(delErr){ alert('Wipe failed: '+delErr.message); return; }
+      const rows = getData().map(r=> ({ id:r.id, season:r.season, player:r.player, match:r.match, reason:r.reason, amount:r.amount, paid:r.paid, created_at:r.createdAt }));
+      for(let i=0;i<rows.length;i+=500){ const chunk=rows.slice(i,i+500); const { error } = await supabase.from('fines').insert(chunk); if(error){ alert('Insert failed: '+error.message); return; } }
+      await pull(); alert('Cloud overwritten.');
+    });
+
+    // Cloud helpers
+    async function pull(){
+      if(!supabase){ alert('Add Supabase settings'); return; }
+      const { data, error } = await supabase.from('fines').select('*').order('created_at',{ascending:false});
+      if(error){ alert('Load failed: '+error.message); return; }
+      const mapped=(data||[]).map(r=> ({ id:r.id, season:r.season, player:r.player, match:r.match, reason:r.reason, amount:Number(r.amount||0), paid:!!r.paid, createdAt:r.created_at }));
+      setData(mapped);
+    }
+    async function upsertCloud(rec){
+      if(!supabase){ alert('Add Supabase settings'); return; }
+      const row = { id:rec.id, season:rec.season, player:rec.player, match:rec.match, reason:rec.reason, amount:rec.amount, paid:rec.paid, created_at:rec.createdAt };
+      const { error } = await supabase.from('fines').upsert(row).select();
+      if(error){ alert('Save failed: '+error.message); }
+    }
+    async function deleteCloud(id){
+      if(!supabase){ alert('Add Supabase settings'); return; }
+      const { error } = await supabase.from('fines').delete().eq('id', id);
+      if(error){ alert('Delete failed: '+error.message); }
+    }
+
+    // Seed example if empty
+    if(getData().length===0){
+      setData([
+        { id: crypto.randomUUID(), season:"2025", player:"Vinit", match:"Match 1", reason:"Late arrival", amount:5, paid:false, createdAt:new Date().toISOString() },
+        { id: crypto.randomUUID(), season:"2025", player:"Vinit", match:"Match 1", reason:"Missing gear", amount:5, paid:false, createdAt:new Date().toISOString() },
+        { id: crypto.randomUUID(), season:"2025", player:"Vinit", match:"Match 2", reason:"Late", amount:5, paid:true, createdAt:new Date().toISOString() },
+        { id: crypto.randomUUID(), season:"2025", player:"Vinit", match:"Match 2", reason:"Arguing", amount:6, paid:false, createdAt:new Date().toISOString() }
+      ]);
+    }
+  </script>
+</body>
+</html>
