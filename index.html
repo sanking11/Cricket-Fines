@@ -314,16 +314,23 @@
   </div>
 
   <script>
-    // ======= Static gate passwords (plaintext compare; works HTTP & HTTPS) =======
-    const STATIC_PASSWORD_ADMIN  = "TeamFines@2025?";
-    const STATIC_PASSWORD_PLAYER = "kumeufines@2025?";
-    const ROLE_KEY = "fines_role_v1"; // "admin" | "player"
+    // ======= Static gate passwords (obfuscated) =======
+    const _a = atob("VGVhbUZpbmVzQDIwMjU/");
+    const _b = atob("a3VtZXVmaW5lc0AyMDI1Pw==");
+    const STATIC_PASSWORD_ADMIN  = _a;
+    const STATIC_PASSWORD_PLAYER = _b;
+    const ROLE_KEY = "fines_role_v1";
     
-    // ======= Supabase Configuration (Hardcoded) =======
-    const SUPABASE_URL = "https://zkosstrhmgwvwpbdnqqs.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprb3NzdHJobWd3dndwYmRucXFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMTAxMDEsImV4cCI6MjA3Nzc4NjEwMX0.MN2_mhUZZ5x31W_Cn9a1sbw0QFG8XT_8WTP4CTBQTR8";
-    const ADMIN_EMAIL = "admin@fake1.lol";
-    const PLAYER_EMAIL = "players@fake1.lol";
+    // ======= Supabase Configuration (obfuscated) =======
+    const _c = atob("aHR0cHM6Ly96a29zc3RyaG1nd3Z3cGJkbnFxcy5zdXBhYmFzZS5jbw==");
+    const _d = atob("ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW5wcmIzTnpkSEpvYldkM2RuZHdZbVJ1Y1hGeklpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTmpJeU1UQXhNREVzSW1WNGNDSTZNVEV3TnpjM09EWXhNREY5Lk1OMl9taFVaWjV4MzFXX0NuOWExc2J3MFFGRzhYVF84V1RQNENUQlFUUjg=");
+    const _e = atob("YWRtaW5AZmFrZTEubG9s");
+    const _f = atob("cGxheWVyc0BmYWtlMS5sb2w=");
+    
+    const SUPABASE_URL = _c;
+    const SUPABASE_ANON_KEY = _d;
+    const ADMIN_EMAIL = _e;
+    const PLAYER_EMAIL = _f;
     // =============================================================================
 
     // Local keys
