@@ -157,8 +157,7 @@
       <h3 style="margin:0 0 10px; font-family:'Audiowide', sans-serif; letter-spacing:2px; color:var(--accent)">Enter Shared Password</h3>
       <div class="row">
         <div><label>Password</label><input id="gatePassword" type="password" placeholder="Team password" /></div>
-       <button id="gateBtn" class="btn primary" style="align-self:end" onclick="window.__unlock()">Unlock</button>
-
+        <button id="gateBtn" class="btn primary" style="align-self:end">Unlock</button>
       </div>
       <p class="muted">This gate is just for viewing access. Cloud permissions are controlled by Supabase Auth.</p>
     </div>
@@ -278,11 +277,11 @@
 
   <script type="module">
     // ======= Static gate passwords (plaintext compare; works HTTP & HTTPS) =======
-const STATIC_PASSWORD_ADMIN  = "TeamFines@2025?";
-const STATIC_PASSWORD_PLAYER = "kumeufines@2025?";
-const ROLE_KEY = "fines_role_v1"; // "admin" | "player"
-// No hashing; simplest + most compatible
-// =============================================================================
+    const STATIC_PASSWORD_ADMIN  = "TeamFines@2025?";
+    const STATIC_PASSWORD_PLAYER = "kumeufines@2025?";
+    const ROLE_KEY = "fines_role_v1"; // "admin" | "player"
+    // No hashing; simplest + most compatible
+    // =============================================================================
 
     // Local keys
     const LS_KEY="fines_neon_reskin_local_v1", SET_KEY="fines_neon_reskin_settings_v1", GATE_KEY="fines_neon_reskin_gate_v1";
@@ -298,48 +297,40 @@ const ROLE_KEY = "fines_role_v1"; // "admin" | "player"
     const realtimeOn = ()=> $('realtimeMode').value === 'on';
 
     // Unlock gate
-    function sha256(s){ const e=new TextEncoder(); return crypto.subtle.digest('SHA-256', e.encode(s)).then(b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')); }
     function unlock(pass){
-  if (!pass) { alert('Enter password'); return; }
-  if (pass === STATIC_PASSWORD_ADMIN){
-    localStorage.setItem(ROLE_KEY, 'admin');
-    localStorage.setItem(CLOUD_MODE_KEY, localStorage.getItem(CLOUD_MODE_KEY) || 'cloud_write');
-    showApp(true);
-    return;
-  }
-  if (pass === STATIC_PASSWORD_PLAYER){
-    localStorage.setItem(ROLE_KEY, 'player');
-    localStorage.setItem(CLOUD_MODE_KEY, 'cloud_read');
-    showApp(true);
-    return;
-  }
-  alert('Wrong password');
-}
-window.__unlock = () => unlock(document.getElementById('gatePassword').value);
-    if(matchPlayer){
-      localStorage.setItem(ROLE_KEY, 'player');
-      localStorage.setItem(GATE_KEY, aPlayer);
-      localStorage.setItem(CLOUD_MODE_KEY, 'cloud_read');
-      showApp(true); return;
+      if (!pass) { alert('Enter password'); return; }
+      if (pass === STATIC_PASSWORD_ADMIN){
+        localStorage.setItem(ROLE_KEY, 'admin');
+        localStorage.setItem(GATE_KEY, pass);
+        localStorage.setItem(CLOUD_MODE_KEY, localStorage.getItem(CLOUD_MODE_KEY) || 'cloud_write');
+        showApp(true);
+        return;
+      }
+      if (pass === STATIC_PASSWORD_PLAYER){
+        localStorage.setItem(ROLE_KEY, 'player');
+        localStorage.setItem(GATE_KEY, pass);
+        localStorage.setItem(CLOUD_MODE_KEY, 'cloud_read');
+        showApp(true);
+        return;
+      }
+      alert('Wrong password');
     }
-    alert('Wrong password');
-  }catch(err){
-    if(pass===STATIC_PASSWORD_ADMIN){
-      localStorage.setItem(ROLE_KEY,'admin'); localStorage.setItem(GATE_KEY, 'RAW:'+STATIC_PASSWORD_ADMIN); localStorage.setItem(CLOUD_MODE_KEY, 'cloud_write'); showApp(true); return;
+
+    function showApp(yes){ 
+      $('gateCard').classList[yes?'add':'remove']('hidden'); 
+      $('app').classList[yes?'remove':'add']('hidden'); 
+      if(yes){ loadSettings(); render(getData()); updateStatus(); }
     }
-    if(pass===STATIC_PASSWORD_PLAYER){
-      localStorage.setItem(ROLE_KEY,'player'); localStorage.setItem(GATE_KEY, 'RAW:'+STATIC_PASSWORD_PLAYER); localStorage.setItem(CLOUD_MODE_KEY, 'cloud_read'); showApp(true); return;
-    }
-    alert('Wrong password');
-  }
-} else { alert('Wrong password'); }
-    }
-    function showApp(yes){ $('gateCard').classList[yes?'add':'remove']('hidden'); $('app').classList[yes?'remove':'add']('hidden'); if(yes){ loadSettings(); render(getData()); updateStatus(); }}
+
     $('gateBtn').addEventListener('click', ()=> unlock($('gatePassword').value));
-    $('gatePassword').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); $('gateBtn').click(); } });
-    $('gatePassword').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); $('gateBtn').click(); } });
+    $('gatePassword').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); unlock($('gatePassword').value); } });
     $('lockBtn').addEventListener('click', ()=>{ localStorage.removeItem(GATE_KEY); localStorage.removeItem('fines_role_v1'); showApp(false); });
-    (async()=>{ const s=localStorage.getItem(GATE_KEY); if(s && s===await sha256(STATIC_PASSWORD)) showApp(true); })();
+    
+    // Check if already unlocked on page load
+    (()=>{ 
+      const s=localStorage.getItem(GATE_KEY); 
+      if(s && (s === STATIC_PASSWORD_ADMIN || s === STATIC_PASSWORD_PLAYER)) showApp(true); 
+    })();
 
     // Settings
     function saveSettings(){
@@ -390,36 +381,21 @@ window.__unlock = () => unlock(document.getElementById('gatePassword').value);
     $('realtimeMode').addEventListener('change', ()=>{ localStorage.setItem(REALTIME_KEY, $('realtimeMode').value); manageRealtime(); updateStatus(); });
 
     function updateStatus(){
-  const role = localStorage.getItem('fines_role_v1') || 'player';
-  const parts=[];
-  if($('cloudMode').value==='local'){ parts.push('Local'); }
-  else if($('cloudMode').value==='cloud_read'){ parts.push('Cloud read'); }
-  else { parts.push('Cloud admin write'); }
-  if(supaAuth?.user){ parts.push(`Signed in: ${$('authEmail').value||supaAuth.user.email||'user'}`); }
-  $('status').textContent = (role==='admin' ? 'Admin • ' : 'Player • ') + parts.join(' • ');
-  $('statusCloud').classList[inCloud()?'remove':'add']('hidden');
-  $('statusRealtime').classList[realtimeOn()&&inCloud()?'remove':'add']('hidden');
-
-  if(role==='player'){ $('cloudMode').value='cloud_read'; $('cloudMode').setAttribute('disabled','disabled'); }
-  else { $('cloudMode').removeAttribute('disabled'); }
-
-  const addCard = $('addCard');
-  const lock = (role==='player') || (inCloud() && !canWrite());
-  addCard.classList[lock?'add':'remove']('locked');
-  addCard.querySelector('.mask').classList[lock?'remove':'add']('hidden');
-  addCard.querySelectorAll('input,select,button').forEach(el => { el.disabled = lock; });
-
-  render(getData());
-}
+      const role = localStorage.getItem('fines_role_v1') || 'player';
+      const parts=[];
+      if($('cloudMode').value==='local'){ parts.push('Local'); }
       else if($('cloudMode').value==='cloud_read'){ parts.push('Cloud read'); }
       else { parts.push('Cloud admin write'); }
       if(supaAuth?.user){ parts.push(`Signed in: ${$('authEmail').value||supaAuth.user.email||'user'}`); }
-      $('status').textContent = parts.join(' • ');
+      $('status').textContent = (role==='admin' ? 'Admin • ' : 'Player • ') + parts.join(' • ');
       $('statusCloud').classList[inCloud()?'remove':'add']('hidden');
       $('statusRealtime').classList[realtimeOn()&&inCloud()?'remove':'add']('hidden');
 
+      if(role==='player'){ $('cloudMode').value='cloud_read'; $('cloudMode').setAttribute('disabled','disabled'); }
+      else { $('cloudMode').removeAttribute('disabled'); }
+
       const addCard = $('addCard');
-      const lock = inCloud() && !canWrite();
+      const lock = (role==='player') || (inCloud() && !canWrite());
       addCard.classList[lock?'add':'remove']('locked');
       addCard.querySelector('.mask').classList[lock?'remove':'add']('hidden');
       addCard.querySelectorAll('input,select,button').forEach(el => { el.disabled = lock; });
