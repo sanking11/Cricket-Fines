@@ -385,6 +385,17 @@
       if(yes){ 
         loadSettings(); 
         render(getData()); 
+        
+        // Force unlock Add Fine card for admin
+        const role = localStorage.getItem(ROLE_KEY);
+        if(role === 'admin') {
+          const addCard = $('addCard');
+          addCard.classList.remove('locked');
+          const mask = addCard.querySelector('.mask');
+          if(mask) mask.classList.add('hidden');
+          addCard.querySelectorAll('input,select,button').forEach(el => { el.disabled = false; });
+        }
+        
         // Update status after a small delay to ensure cloud mode is set
         setTimeout(() => updateStatus(), 100);
       }
@@ -534,6 +545,9 @@
           lock = !canWrite(); // In cloud mode, need proper auth to write
         }
       }
+      
+      console.log('Lock status - Role:', role, 'Cloud Mode:', $('cloudMode').value, 'Lock:', lock, 'canWrite:', canWrite());
+      
       addCard.classList[lock?'add':'remove']('locked');
       addCard.querySelector('.mask').classList[lock?'remove':'add']('hidden');
       addCard.querySelectorAll('input,select,button').forEach(el => { el.disabled = lock; });
