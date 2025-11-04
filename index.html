@@ -323,26 +323,27 @@
         
         // Auto-login to Supabase
         if(supabase) {
-          console.log('Attempting Supabase login with:', ADMIN_EMAIL);
-          const { error } = await supabase.auth.signInWithPassword({ 
-            email: ADMIN_EMAIL, 
-            password: pass 
-          });
-          if(error) {
-            console.error('Supabase login failed:', error.message);
-            alert('Warning: Could not connect to cloud. Working in local mode.\nError: ' + error.message);
-            localStorage.setItem(CLOUD_MODE_KEY, 'local');
-          } else {
-            console.log('Supabase login successful!');
-            // Ensure cloud_write is still set after successful login
-            localStorage.setItem(CLOUD_MODE_KEY, 'cloud_write');
-            // Load data from cloud
-            await pull();
+          console.log('Attempting Supabase login with:', ADMIN_EMAIL, 'password length:', pass.length);
+          try {
+            const { data, error } = await supabase.auth.signInWithPassword({ 
+              email: ADMIN_EMAIL, 
+              password: pass 
+            });
+            if(error) {
+              console.error('Supabase login failed:', error);
+              alert('Supabase Authentication Failed!\n\nError: ' + error.message + '\n\nPlease check:\n1. User exists in Supabase Auth\n2. Password is correct\n3. Email confirmation (if required)');
+            } else {
+              console.log('Supabase login successful!', data);
+              // Load data from cloud
+              await pull();
+            }
+          } catch(err) {
+            console.error('Supabase login exception:', err);
+            alert('Supabase login error: ' + err.message);
           }
         } else {
           console.error('Supabase object not initialized');
-          alert('Warning: Could not initialize cloud connection. Working in local mode.');
-          localStorage.setItem(CLOUD_MODE_KEY, 'local');
+          alert('Warning: Could not initialize Supabase. Check console for errors.');
         }
         
         showApp(true);
@@ -491,10 +492,34 @@
 
     // Auth
     $('authSignIn').addEventListener('click', async()=>{
-      if(!supabase){ alert('Add Supabase URL & anon key'); return; }
-      const email=$('authEmail').value.trim(), pwd=$('authPass').value;
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password: pwd });
-      if(error){ alert(error.message); return; }
+      if(!supabase){ alert('Supabase not initialized. Check console for errors.'); return; }
+      
+      const role = localStorage.getItem(ROLE_KEY);
+      const gatePass = localStorage.getItem(GATE_KEY);
+      
+      let email, password;
+      if(role === 'admin') {
+        email = ADMIN_EMAIL;
+        password = gatePass || STATIC_PASSWORD_ADMIN;
+      } else if(role === 'player') {
+        email = PLAYER_EMAIL;
+        password = gatePass || STATIC_PASSWORD_PLAYER;
+      } else {
+        alert('Please login first');
+        return;
+      }
+      
+      console.log('Manual sign-in attempt with:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if(error){ 
+        console.error('Sign-in error:', error);
+        alert('Sign-in failed!\n\n' + error.message + '\n\nCheck:\n- User exists in Supabase\n- Correct credentials\n- Email confirmed'); 
+        return; 
+      }
+      
+      console.log('Sign-in successful!', data);
+      alert('✓ Successfully signed in to Supabase!');
       updateStatus();
       if(inCloud()) await pull();
     });
