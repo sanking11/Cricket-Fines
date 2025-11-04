@@ -6,10 +6,10 @@
   <title>Cricket Fines 2025 - Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Exo+2:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#07110c;
+      --bg:#0d1a14;
       --text:#eafff3;
       --muted:rgba(255,255,255,.75);
       --accent:#00ff88;
@@ -25,20 +25,21 @@
       margin:0;
       padding:28px;
       color:var(--text);
-      background:#07110c;
-      font-family:'Exo 2', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-      letter-spacing:.2px;
+      background:#0d1a14;
+      font-family:'Rajdhani', 'Exo 2', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      letter-spacing:.3px;
       overflow-x:hidden;
+      font-weight:500;
     }
     /* Animated Gradient Background from your design */
     .animated-bg{
       position:fixed; inset:0; z-index:0;
       background: linear-gradient(135deg,
-        #0a1f1f 0%,
-        #1a2f3a 25%,
-        #0d2818 50%,
-        #16213e 75%,
-        #0a1f1f 100%
+        #0f2e2e 0%,
+        #2a4555 25%,
+        #15402a 50%,
+        #243b5f 75%,
+        #0f2e2e 100%
       );
       background-size:400% 400%;
       animation: gradientShift 18s ease infinite;
@@ -69,9 +70,9 @@
 
     h1{
       margin: 0 0 18px;
-      font-family: 'Audiowide', sans-serif;
-      font-weight:400;
-      letter-spacing:4px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight:800;
+      letter-spacing:6px;
       color: var(--accent);
       text-shadow: 0 0 20px rgba(0,255,136,0.5);
       animation: futuristicGlow 2s ease-in-out infinite;
@@ -104,7 +105,7 @@
       border: 1px solid rgba(255,255,255,0.2);
       border-radius:10px;
       color:#fff; font-size:16px; transition: all .25s ease;
-      font-family:'Exo 2', sans-serif;
+      font-family:'Rajdhani', sans-serif;
     }
     input::placeholder, textarea::placeholder{ color: rgba(255,255,255,.65); }
     input:focus, select:focus, textarea:focus{
@@ -123,7 +124,7 @@
 
     table{ width:100%; border-collapse: collapse; background: rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius:15px; overflow:hidden; }
     th{ background: rgba(255,255,255,0.15); color: var(--accent); padding:15px; text-align:left;
-        font-weight:700; font-family:'Audiowide', sans-serif; letter-spacing:1.5px; text-transform:uppercase; font-size:.8em; }
+        font-weight:700; font-family:'Orbitron', sans-serif; letter-spacing:1.5px; text-transform:uppercase; font-size:.8em; }
     td{ padding:12px 15px; color:#fff; border-bottom:1px solid rgba(255,255,255,0.1); }
     tr:hover{ background: rgba(255,255,255,0.08); }
     .muted{ color: var(--muted); font-size: .9em; }
@@ -151,16 +152,19 @@
 
   <div class="wrap">
     <h1>CRICKET FINES TRACKER 2025</h1>
-    <p class="muted" style="margin-bottom:16px">Neon-glass UI based on your design. Static shared password gate. Supabase cloud (read-only for players, write for admins).</p>
+    <p class="muted" style="margin-bottom:16px">Where every dropped catch costs you more than just runs! 🏏💸</p>
 
     <!-- Static Gate -->
     <div class="card" id="gateCard">
-      <h3 style="margin:0 0 10px; font-family:'Audiowide', sans-serif; letter-spacing:2px; color:var(--accent)">Enter Shared Password</h3>
+      <h3 style="margin:0 0 10px; font-family:'Orbitron', sans-serif; letter-spacing:2px; color:var(--accent)">Enter Shared Password</h3>
       <div class="row">
         <div><label>Password</label><input id="gatePassword" type="password" placeholder="Team password" /></div>
         <button id="gateBtn" class="btn primary" style="align-self:end">Unlock</button>
       </div>
-      <p class="muted">This gate is just for viewing access. Cloud permissions are controlled by Supabase Auth.</p>
+      <p class="muted" style="margin-top:12px; line-height:1.6;">
+        📞 <strong>Don't have the password?</strong> Please check with your captain/coach.<br>
+        🔐 <strong>Access Levels:</strong> Players can view • Admin has all rights • Logins are securely controlled by Cloud Authentication.
+      </p>
     </div>
 
     <!-- App -->
@@ -195,7 +199,7 @@
       </div>
 
       <div class="card player-hidden" id="settingsCard">
-        <h3 style="margin-top:0; font-family:'Audiowide', sans-serif; letter-spacing:2px; color:var(--accent)">Supabase Settings</h3>
+        <h3 style="margin-top:0; font-family:'Orbitron', sans-serif; letter-spacing:2px; color:var(--accent)">Supabase Settings</h3>
         <div class="row">
           <div><label>Project URL</label><input id="supabaseUrl" placeholder="https://YOUR-PROJECT.supabase.co" readonly /></div>
           <div><label>Anon Key</label><input id="supabaseKey" placeholder="ey..." readonly /></div>
@@ -215,7 +219,7 @@
       <div class="card" id="addCard">
         <div class="mask hidden"></div>
         <div class="content">
-          <h3 style="margin-top:0; font-family:'Audiowide', sans-serif; letter-spacing:2px; color:var(--accent)">Add Fine</h3>
+          <h3 style="margin-top:0; font-family:'Orbitron', sans-serif; letter-spacing:2px; color:var(--accent)">Add Fine</h3>
           <div class="row">
             <div><label>Season</label><input id="season" placeholder="e.g., 2025" /></div>
             <div><label>Player</label><input id="player" placeholder="e.g., Vinit" /></div>
@@ -256,27 +260,27 @@
       </div>
 
       <div class="card">
-        <h3 style="margin-top:0; font-family:'Audiowide', sans-serif; letter-spacing:2px; color:var(--accent)">Summaries</h3>
+        <h3 style="margin-top:0; font-family:'Orbitron', sans-serif; letter-spacing:2px; color:var(--accent)">Summaries</h3>
         
         <!-- Overall Stats -->
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:16px; margin-bottom:24px;">
           <!-- Total Fines -->
           <div style="padding:20px; background:linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,255,136,0.05)); border-radius:12px; border:2px solid rgba(0,255,136,0.3); text-align:center;">
             <div style="font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; font-weight:600;">💰 Total Fines</div>
-            <div id="totalFines" style="font-size:42px; font-weight:900; color:var(--accent); font-family:'Audiowide', sans-serif; text-shadow:0 0 20px rgba(0,255,136,0.5);">0</div>
+            <div id="totalFines" style="font-size:42px; font-weight:900; color:var(--accent); font-family:'Orbitron', sans-serif; text-shadow:0 0 20px rgba(0,255,136,0.5);">0</div>
           </div>
           
           <!-- Unpaid -->
           <div style="padding:20px; background:linear-gradient(135deg, rgba(255,68,68,0.15), rgba(255,68,68,0.05)); border-radius:12px; border:2px solid rgba(255,68,68,0.3); text-align:center;">
             <div style="font-size:11px; color:#ff99a5; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; font-weight:600;">🔴 Unpaid</div>
-            <div id="totalUnpaid" style="font-size:42px; font-weight:900; color:#ff4444; font-family:'Audiowide', sans-serif; text-shadow:0 0 20px rgba(255,68,68,0.5);">0</div>
+            <div id="totalUnpaid" style="font-size:42px; font-weight:900; color:#ff4444; font-family:'Orbitron', sans-serif; text-shadow:0 0 20px rgba(255,68,68,0.5);">0</div>
             <div id="unpaidPercentage" style="font-size:12px; color:#ff99a5; margin-top:4px; font-weight:600;">0%</div>
           </div>
           
           <!-- Paid -->
           <div style="padding:20px; background:linear-gradient(135deg, rgba(130,245,200,0.15), rgba(130,245,200,0.05)); border-radius:12px; border:2px solid rgba(130,245,200,0.3); text-align:center;">
             <div style="font-size:11px; color:#82f5c8; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; font-weight:600;">🟢 Paid</div>
-            <div id="totalPaid" style="font-size:42px; font-weight:900; color:#00ff88; font-family:'Audiowide', sans-serif; text-shadow:0 0 20px rgba(0,255,136,0.5);">0</div>
+            <div id="totalPaid" style="font-size:42px; font-weight:900; color:#00ff88; font-family:'Orbitron', sans-serif; text-shadow:0 0 20px rgba(0,255,136,0.5);">0</div>
             <div id="paidPercentage" style="font-size:12px; color:#82f5c8; margin-top:4px; font-weight:600;">0%</div>
           </div>
         </div>
