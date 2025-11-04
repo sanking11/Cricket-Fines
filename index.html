@@ -298,7 +298,14 @@
     let supaCfg={ url: SUPABASE_URL, key: SUPABASE_ANON_KEY };
 
     const $ = (id)=>document.getElementById(id);
-    const canWrite = ()=> $('cloudMode').value === 'cloud_write' && !!supaAuth?.user;
+    const canWrite = ()=> {
+      const role = localStorage.getItem(ROLE_KEY);
+      const cloudMode = $('cloudMode').value;
+      // Admin in cloud_write mode can always write (even if Supabase auth fails)
+      if(role === 'admin' && cloudMode === 'cloud_write') return true;
+      // Otherwise, need proper Supabase auth
+      return cloudMode === 'cloud_write' && !!supaAuth?.user;
+    };
     const inCloud = ()=> $('cloudMode').value.startsWith('cloud');
     const realtimeOn = ()=> $('realtimeMode').value === 'on';
 
@@ -343,19 +350,21 @@
               password: pass 
             });
             if(error) {
-              console.error('Supabase login failed:', error);
-              alert('Supabase Authentication Failed!\n\nError: ' + error.message + '\n\nPlease check:\n1. User exists in Supabase Auth\n2. Password is correct\n3. Email confirmation (if required)');
+              console.error('❌ Supabase login failed:', error);
+              console.error('Error details:', JSON.stringify(error, null, 2));
+              alert('Supabase Authentication Failed!\n\nError: ' + error.message + '\n\nPlease check:\n1. User exists in Supabase Auth\n2. Password is correct: ' + pass + '\n3. Email confirmation (if required)');
             } else {
-              console.log('Supabase login successful!', data);
+              console.log('✅ Supabase login successful!', data);
+              alert('✅ Successfully logged into Supabase!');
               // Load data from cloud
               await pull();
             }
           } catch(err) {
-            console.error('Supabase login exception:', err);
+            console.error('❌ Supabase login exception:', err);
             alert('Supabase login error: ' + err.message);
           }
         } else {
-          console.error('Supabase object not initialized');
+          console.error('❌ Supabase object not initialized');
           alert('Warning: Could not initialize Supabase. Check console for errors.');
         }
         
@@ -397,11 +406,17 @@
       $('gateCard').classList[yes?'add':'remove']('hidden'); 
       $('app').classList[yes?'remove':'add']('hidden'); 
       if(yes){ 
+        // First, make sure admin elements are visible
+        const role = localStorage.getItem(ROLE_KEY);
+        if(role === 'admin') {
+          document.querySelectorAll('.player-hidden').forEach(el => el.style.display = '');
+        }
+        
+        // Then load settings which will set the dropdown value
         loadSettings(); 
         render(getData()); 
         
         // Force unlock Add Fine card for admin
-        const role = localStorage.getItem(ROLE_KEY);
         if(role === 'admin') {
           const addCard = $('addCard');
           addCard.classList.remove('locked');
@@ -456,12 +471,14 @@
         $('authEmail').value = PLAYER_EMAIL;
       }
       
-      // Load cloud mode and realtime settings from localStorage
+      // CRITICAL: Set dropdown to match localStorage
       const cloudMode = localStorage.getItem(CLOUD_MODE_KEY) || 'local';
       const realtimeMode = localStorage.getItem(REALTIME_KEY) || 'off';
       
+      console.log('loadSettings - setting dropdown to:', cloudMode);
       $('cloudMode').value = cloudMode;
       $('realtimeMode').value = realtimeMode;
+      console.log('loadSettings - dropdown is now:', $('cloudMode').value);
       
       updateStatus();
     }
@@ -548,6 +565,8 @@
     function updateStatus(){
       const role = localStorage.getItem('fines_role_v1') || 'player';
       
+      console.log('updateStatus called - Role:', role, 'localStorage cloudMode:', localStorage.getItem(CLOUD_MODE_KEY), 'dropdown value:', $('cloudMode').value);
+      
       // Show/hide admin-only elements
       const playerHiddenElements = document.querySelectorAll('.player-hidden');
       playerHiddenElements.forEach(el => {
@@ -567,8 +586,12 @@
       $('statusCloud').classList[inCloud()?'remove':'add']('hidden');
       $('statusRealtime').classList[realtimeOn()&&inCloud()?'remove':'add']('hidden');
 
-      if(role==='player'){ $('cloudMode').value='cloud_read'; $('cloudMode').setAttribute('disabled','disabled'); }
-      else { $('cloudMode').removeAttribute('disabled'); }
+      if(role==='player'){ 
+        $('cloudMode').value='cloud_read'; 
+        $('cloudMode').setAttribute('disabled','disabled'); 
+      } else { 
+        $('cloudMode').removeAttribute('disabled'); 
+      }
 
       const addCard = $('addCard');
       // Players always locked
