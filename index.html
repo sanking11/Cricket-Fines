@@ -143,6 +143,7 @@
     }
     .locked .mask{ position:absolute; inset:0; backdrop-filter: blur(4px) saturate(120%); background: rgba(7,17,12,.35); pointer-events:none; }
     .locked .content *{ filter: blur(1px) brightness(.95); pointer-events:none; user-select:none; }
+    .player-hidden{ display:none !important; }
   </style>
 </head>
 <body>
@@ -174,7 +175,7 @@
               <span id="statusRealtime" class="dot hidden"></span>
             </div>
           </div>
-          <div>
+          <div id="cloudModeCol" class="player-hidden">
             <label>Cloud Mode</label>
             <select id="cloudMode">
               <option value="local">Local (no cloud)</option>
@@ -182,7 +183,7 @@
               <option value="cloud_write">Cloud — Admin write</option>
             </select>
           </div>
-          <div>
+          <div id="realtimeModeCol" class="player-hidden">
             <label>Realtime</label>
             <select id="realtimeMode">
               <option value="off">Off</option>
@@ -193,13 +194,13 @@
         </div>
       </div>
 
-      <div class="card" id="settingsCard">
+      <div class="card player-hidden" id="settingsCard">
         <h3 style="margin-top:0; font-family:'Audiowide', sans-serif; letter-spacing:2px; color:var(--accent)">Supabase Settings</h3>
         <div class="row">
-          <div><label>Project URL</label><input id="supabaseUrl" placeholder="https://YOUR-PROJECT.supabase.co" /></div>
-          <div><label>Anon Key</label><input id="supabaseKey" placeholder="ey..." /></div>
-          <div><label>Auth Email</label><input id="authEmail" placeholder="player@team or admin@team" /></div>
-          <div><label>Auth Password</label><input id="authPass" type="password" placeholder="••••••••" /></div>
+          <div><label>Project URL</label><input id="supabaseUrl" placeholder="https://YOUR-PROJECT.supabase.co" readonly /></div>
+          <div><label>Anon Key</label><input id="supabaseKey" placeholder="ey..." readonly /></div>
+          <div><label>Auth Email</label><input id="authEmail" placeholder="player@team or admin@team" readonly /></div>
+          <div><label>Auth Password</label><input id="authPass" type="password" placeholder="(auto-filled from gate)" readonly /></div>
         </div>
         <div class="row" style="margin-top:8px">
           <button id="saveSettings" class="btn secondary">Save Settings</button>
@@ -208,7 +209,7 @@
           <button id="pullBtn" class="btn secondary">Load from Cloud</button>
           <button id="pushBtn" class="btn secondary">Push to Cloud (overwrite)</button>
         </div>
-        <p class="muted">Players: sign in with the shared <em>player</em> account (read-only). Admins: use the <em>admin</em> account to enable cloud writes.</p>
+        <p class="muted">✓ Supabase is pre-configured and auto-connects when you unlock with your password. Credentials are read-only for security.</p>
       </div>
 
       <div class="card" id="addCard">
@@ -275,12 +276,17 @@
     </div>
   </div>
 
-  <script type="module">
+  <script>
     // ======= Static gate passwords (plaintext compare; works HTTP & HTTPS) =======
     const STATIC_PASSWORD_ADMIN  = "TeamFines@2025?";
     const STATIC_PASSWORD_PLAYER = "kumeufines@2025?";
     const ROLE_KEY = "fines_role_v1"; // "admin" | "player"
-    // No hashing; simplest + most compatible
+    
+    // ======= Supabase Configuration (Hardcoded) =======
+    const SUPABASE_URL = "https://zkosstrhmgwvwpbdnqqs.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprb3NzdHJobWd3dndwYmRucXFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMTAxMDEsImV4cCI6MjA3Nzc4NjEwMX0.MN2_mhUZZ5x31W_Cn9a1sbw0QFG8XT_8WTP4CTBQTR8";
+    const ADMIN_EMAIL = "admin@fake1.lol";
+    const PLAYER_EMAIL = "players@fake1.lol";
     // =============================================================================
 
     // Local keys
@@ -289,7 +295,7 @@
 
     // Supabase
     let supabase=null, supaAuth=null, realtimeChannel=null;
-    let supaCfg={ url:"", key:"" };
+    let supaCfg={ url: SUPABASE_URL, key: SUPABASE_ANON_KEY };
 
     const $ = (id)=>document.getElementById(id);
     const canWrite = ()=> $('cloudMode').value === 'cloud_write' && !!supaAuth?.user;
@@ -297,39 +303,108 @@
     const realtimeOn = ()=> $('realtimeMode').value === 'on';
 
     // Unlock gate
-    function unlock(pass){
+    async function unlock(pass){
       if (!pass) { alert('Enter password'); return; }
+      
       if (pass === STATIC_PASSWORD_ADMIN){
+        // Clear any old settings first
+        localStorage.removeItem(CLOUD_MODE_KEY);
+        
         localStorage.setItem(ROLE_KEY, 'admin');
         localStorage.setItem(GATE_KEY, pass);
-        localStorage.setItem(CLOUD_MODE_KEY, localStorage.getItem(CLOUD_MODE_KEY) || 'cloud_write');
+        localStorage.setItem(CLOUD_MODE_KEY, 'cloud_write');
+        
+        console.log('Admin unlock: cloud mode set to:', localStorage.getItem(CLOUD_MODE_KEY));
+        
+        // Auto-setup Supabase
+        await setupSupabase();
+        
+        console.log('Supabase setup complete, supabase object:', !!supabase);
+        
+        // Auto-login to Supabase
+        if(supabase) {
+          console.log('Attempting Supabase login with:', ADMIN_EMAIL);
+          const { error } = await supabase.auth.signInWithPassword({ 
+            email: ADMIN_EMAIL, 
+            password: pass 
+          });
+          if(error) {
+            console.error('Supabase login failed:', error.message);
+            alert('Warning: Could not connect to cloud. Working in local mode.\nError: ' + error.message);
+            localStorage.setItem(CLOUD_MODE_KEY, 'local');
+          } else {
+            console.log('Supabase login successful!');
+            // Ensure cloud_write is still set after successful login
+            localStorage.setItem(CLOUD_MODE_KEY, 'cloud_write');
+            // Load data from cloud
+            await pull();
+          }
+        } else {
+          console.error('Supabase object not initialized');
+          alert('Warning: Could not initialize cloud connection. Working in local mode.');
+          localStorage.setItem(CLOUD_MODE_KEY, 'local');
+        }
+        
         showApp(true);
         return;
       }
+      
       if (pass === STATIC_PASSWORD_PLAYER){
         localStorage.setItem(ROLE_KEY, 'player');
         localStorage.setItem(GATE_KEY, pass);
         localStorage.setItem(CLOUD_MODE_KEY, 'cloud_read');
+        
+        // Auto-setup Supabase
+        await setupSupabase();
+        
+        // Auto-login to Supabase
+        if(supabase) {
+          const { error } = await supabase.auth.signInWithPassword({ 
+            email: PLAYER_EMAIL, 
+            password: pass 
+          });
+          if(error) {
+            console.error('Supabase login failed:', error.message);
+            alert('Warning: Could not connect to cloud. Some features may be limited.');
+          } else {
+            // Load data from cloud
+            await pull();
+          }
+        }
+        
         showApp(true);
         return;
       }
+      
       alert('Wrong password');
     }
 
     function showApp(yes){ 
       $('gateCard').classList[yes?'add':'remove']('hidden'); 
       $('app').classList[yes?'remove':'add']('hidden'); 
-      if(yes){ loadSettings(); render(getData()); updateStatus(); }
+      if(yes){ 
+        loadSettings(); 
+        render(getData()); 
+        // Update status after a small delay to ensure cloud mode is set
+        setTimeout(() => updateStatus(), 100);
+      }
     }
 
-    $('gateBtn').addEventListener('click', ()=> unlock($('gatePassword').value));
-    $('gatePassword').addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); unlock($('gatePassword').value); } });
-    $('lockBtn').addEventListener('click', ()=>{ localStorage.removeItem(GATE_KEY); localStorage.removeItem('fines_role_v1'); showApp(false); });
+    $('gateBtn').addEventListener('click', async ()=> await unlock($('gatePassword').value));
+    $('gatePassword').addEventListener('keydown', async (e)=>{ if(e.key==='Enter'){ e.preventDefault(); await unlock($('gatePassword').value); } });
+    $('lockBtn').addEventListener('click', async ()=>{ 
+      if(supabase) await supabase.auth.signOut();
+      localStorage.removeItem(GATE_KEY); 
+      localStorage.removeItem('fines_role_v1'); 
+      showApp(false); 
+    });
     
     // Check if already unlocked on page load
-    (()=>{ 
+    (async ()=>{ 
       const s=localStorage.getItem(GATE_KEY); 
-      if(s && (s === STATIC_PASSWORD_ADMIN || s === STATIC_PASSWORD_PLAYER)) showApp(true); 
+      if(s && (s === STATIC_PASSWORD_ADMIN || s === STATIC_PASSWORD_PLAYER)) {
+        await unlock(s);
+      }
     })();
 
     // Settings
@@ -342,25 +417,66 @@
       setupSupabase();
     }
     function loadSettings(){
-      const raw=localStorage.getItem(SET_KEY);
-      if(raw){ try{ const s=JSON.parse(raw); supaCfg.url=s.url||""; supaCfg.key=s.key||""; $('supabaseUrl').value=supaCfg.url; $('supabaseKey').value=supaCfg.key; $('authEmail').value=s.email||"";}catch{} }
-      $('cloudMode').value = localStorage.getItem(CLOUD_MODE_KEY) || 'local';
-      $('realtimeMode').value = localStorage.getItem(REALTIME_KEY) || 'off';
+      // Always use hardcoded Supabase credentials
+      supaCfg.url = SUPABASE_URL;
+      supaCfg.key = SUPABASE_ANON_KEY;
+      $('supabaseUrl').value = supaCfg.url;
+      $('supabaseKey').value = supaCfg.key;
+      
+      // Set email based on role
+      const role = localStorage.getItem(ROLE_KEY);
+      if(role === 'admin') {
+        $('authEmail').value = ADMIN_EMAIL;
+      } else if(role === 'player') {
+        $('authEmail').value = PLAYER_EMAIL;
+      }
+      
+      // Load cloud mode and realtime settings from localStorage
+      const cloudMode = localStorage.getItem(CLOUD_MODE_KEY) || 'local';
+      const realtimeMode = localStorage.getItem(REALTIME_KEY) || 'off';
+      
+      $('cloudMode').value = cloudMode;
+      $('realtimeMode').value = realtimeMode;
+      
       updateStatus();
     }
     $('saveSettings').addEventListener('click', saveSettings);
 
     async function setupSupabase(){
       if(supaCfg.url && supaCfg.key){
-        if(!window.Supabase){ await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/+esm'); }
-        const { createClient } = window.Supabase;
+        // Load Supabase library if not already loaded
+        if(!window.supabase) {
+          try {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            script.type = 'text/javascript';
+            await new Promise((resolve, reject) => {
+              script.onload = resolve;
+              script.onerror = reject;
+              document.head.appendChild(script);
+            });
+            // Wait for supabase to be available
+            await new Promise(resolve => setTimeout(resolve, 100));
+          } catch(err) {
+            console.error('Failed to load Supabase library:', err);
+            alert('Failed to load cloud library. Please refresh the page.');
+            return;
+          }
+        }
+        
+        const { createClient } = window.supabase;
         supabase = createClient(supaCfg.url, supaCfg.key);
         supaAuth = supabase.auth;
-      } else { supabase=null; supaAuth=null; }
+      } else { 
+        supabase=null; 
+        supaAuth=null; 
+      }
       manageRealtime();
       updateStatus();
     }
-    await setupSupabase();
+    
+    // Initialize Supabase on page load
+    setupSupabase();
 
     // Auth
     $('authSignIn').addEventListener('click', async()=>{
@@ -382,6 +498,17 @@
 
     function updateStatus(){
       const role = localStorage.getItem('fines_role_v1') || 'player';
+      
+      // Show/hide admin-only elements
+      const playerHiddenElements = document.querySelectorAll('.player-hidden');
+      playerHiddenElements.forEach(el => {
+        if(role === 'player') {
+          el.style.display = 'none';
+        } else {
+          el.style.display = '';
+        }
+      });
+      
       const parts=[];
       if($('cloudMode').value==='local'){ parts.push('Local'); }
       else if($('cloudMode').value==='cloud_read'){ parts.push('Cloud read'); }
@@ -395,7 +522,18 @@
       else { $('cloudMode').removeAttribute('disabled'); }
 
       const addCard = $('addCard');
-      const lock = (role==='player') || (inCloud() && !canWrite());
+      // Players always locked
+      // Admin: unlocked in local mode, locked in cloud modes unless can write
+      let lock = false;
+      if(role === 'player') {
+        lock = true;
+      } else if(role === 'admin') {
+        if($('cloudMode').value === 'local') {
+          lock = false; // Admin can always add in local mode
+        } else {
+          lock = !canWrite(); // In cloud mode, need proper auth to write
+        }
+      }
       addCard.classList[lock?'add':'remove']('locked');
       addCard.querySelector('.mask').classList[lock?'remove':'add']('hidden');
       addCard.querySelectorAll('input,select,button').forEach(el => { el.disabled = lock; });
