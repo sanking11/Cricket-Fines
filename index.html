@@ -277,7 +277,38 @@
 
   <script type="module">
     // ======= Static gate password =======
-    const STATIC_PASSWORD = "TeamFines@2025?";
+    // ======= Static gate password =======
+const STATIC_PASSWORD = "TeamFines@2025?";
+// Fallback-friendly unlock: crypto.subtle needs HTTPS; if unavailable, do a direct compare.
+const supportsSubtle = typeof window !== 'undefined' && window.isSecureContext && window.crypto && window.crypto.subtle;
+async function sha256FallbackAware(s){
+  if (supportsSubtle) {
+    const e = new TextEncoder();
+    const buf = await crypto.subtle.digest('SHA-256', e.encode(s));
+    return Array.from(new Uint8Array(buf)).map(x => x.toString(16).padStart(2,'0')).join('');
+  } else {
+    return "RAW:" + s; // let us compare plaintext if not secure
+  }
+}
+// ===================================
+
+async function unlock(pass){
+  try{
+    const a = await sha256FallbackAware(STATIC_PASSWORD);
+    const b = await sha256FallbackAware(pass);
+    const equal = (a===b) || (!supportsSubtle && pass === STATIC_PASSWORD);
+    if(equal){
+      localStorage.setItem(GATE_KEY, a);
+      showApp(true);
+    } else {
+      alert('Wrong password');
+    }
+  } catch {
+    if (pass === STATIC_PASSWORD) { localStorage.setItem(GATE_KEY, 'RAW:'+STATIC_PASSWORD); showApp(true); }
+    else { alert('Wrong password'); }
+  }
+}
+
     // ======= Presets for GitHub Pages build (supplied by Sunny) =======
     const PRESET_SUPABASE_URL = "https://zkosstrhmgwvwpbdnqqs.supabase.co";
     const PRESET_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprb3NzdHJobWd3dndwYmRucXFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIyMTAxMDEsImV4cCI6MjA3Nzc4NjEwMX0.MN2_mhUZZ5x31W_Cn9a1sbw0QFG8XT_8WTP4CTBQTR8";
