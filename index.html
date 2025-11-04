@@ -302,6 +302,19 @@
     const inCloud = ()=> $('cloudMode').value.startsWith('cloud');
     const realtimeOn = ()=> $('realtimeMode').value === 'on';
 
+    // UUID generator that works on HTTP and HTTPS
+    function generateUUID() {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return generateUUID();
+      }
+      // Fallback for HTTP (non-secure contexts)
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0;
+        const v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
     // Unlock gate
     async function unlock(pass){
       if (!pass) { alert('Enter password'); return; }
@@ -670,7 +683,7 @@
     // Add
     $('addBtn').addEventListener('click', ()=> addN(1));
     async function addN(n){
-      const rec = ()=>({ id: crypto.randomUUID(), season:$('season').value.trim(), player:$('player').value.trim(), match:$('match').value.trim(), reason:$('reason').value.trim(), amount:Number($('amount').value), paid: $('paid').value==='true', createdAt:new Date().toISOString() });
+      const rec = ()=>({ id: generateUUID(), season:$('season').value.trim(), player:$('player').value.trim(), match:$('match').value.trim(), reason:$('reason').value.trim(), amount:Number($('amount').value), paid: $('paid').value==='true', createdAt:new Date().toISOString() });
       if(inCloud() && !canWrite()){ alert('Cloud write disabled for this account/mode.'); return; }
       for(let i=0;i<n;i++){
         const r = rec();
@@ -699,7 +712,7 @@
       const parsed=lines.map(line=>{
         const out=[]; let cur='', q=false; for(let i=0;i<line.length;i++){ const c=line[i]; if(c=='\"'){ if(q&&line[i+1]=='\"'){ cur+='\"'; i++; } else { q=!q; } } else if(c==',' && !q){ out.push(cur); cur=''; } else { cur+=c; } } out.push(cur);
         const g=(h)=> (out[idx(h)]??'').replace(/^\"|\"$/g,'');
-        return { id: crypto.randomUUID(), season:g('season'), player:g('player'), match:g('match'), reason:g('reason'), amount:Number(g('amount')||0), paid:String(g('paid')).toLowerCase()==='true', createdAt:new Date().toISOString() };
+        return { id: generateUUID(), season:g('season'), player:g('player'), match:g('match'), reason:g('reason'), amount:Number(g('amount')||0), paid:String(g('paid')).toLowerCase()==='true', createdAt:new Date().toISOString() };
       });
       if(inCloud()){ for(const r of parsed) await upsertCloud(r); await pull(); } else { setData(getData().concat(parsed)); }
       e.target.value=''; alert('Import complete.');
@@ -739,10 +752,10 @@
     // Seed example if empty
     if(getData().length===0){
       setData([
-        { id: crypto.randomUUID(), season:"2025", player:"Vinit", match:"Match 1", reason:"Late arrival", amount:5, paid:false, createdAt:new Date().toISOString() },
-        { id: crypto.randomUUID(), season:"2025", player:"Vinit", match:"Match 1", reason:"Missing gear", amount:5, paid:false, createdAt:new Date().toISOString() },
-        { id: crypto.randomUUID(), season:"2025", player:"Vinit", match:"Match 2", reason:"Late", amount:5, paid:true, createdAt:new Date().toISOString() },
-        { id: crypto.randomUUID(), season:"2025", player:"Vinit", match:"Match 2", reason:"Arguing", amount:6, paid:false, createdAt:new Date().toISOString() }
+        { id: generateUUID(), season:"2025", player:"Vinit", match:"Match 1", reason:"Late arrival", amount:5, paid:false, createdAt:new Date().toISOString() },
+        { id: generateUUID(), season:"2025", player:"Vinit", match:"Match 1", reason:"Missing gear", amount:5, paid:false, createdAt:new Date().toISOString() },
+        { id: generateUUID(), season:"2025", player:"Vinit", match:"Match 2", reason:"Late", amount:5, paid:true, createdAt:new Date().toISOString() },
+        { id: generateUUID(), season:"2025", player:"Vinit", match:"Match 2", reason:"Arguing", amount:6, paid:false, createdAt:new Date().toISOString() }
       ]);
     }
   </script>
