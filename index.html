@@ -476,7 +476,7 @@
     // UUID generator that works on HTTP and HTTPS
     function generateUUID() {
       if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-        return generateUUID();
+        return crypto.randomUUID();
       }
       // Fallback for HTTP (non-secure contexts)
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
