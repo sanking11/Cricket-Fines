@@ -5,9 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cricket Fines 2025 - Tracker</title>
   
-  <!-- Load Supabase from unpkg (often not blocked) -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  
   <!-- Futuristic Cricket Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%2300ff88;stop-opacity:1'/><stop offset='100%' style='stop-color:%2300cc66;stop-opacity:1'/></linearGradient><filter id='glow'><feGaussianBlur stdDeviation='2' result='coloredBlur'/><feMerge><feMergeNode in='coloredBlur'/><feMergeNode in='SourceGraphic'/></feMerge></filter></defs><circle cx='50' cy='50' r='45' fill='%23001a0f' stroke='url(%23g)' stroke-width='3' filter='url(%23glow)'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='url(%23g)' filter='url(%23glow)'>🏏</text><circle cx='50' cy='50' r='48' fill='none' stroke='url(%23g)' stroke-width='1' opacity='0.3'/></svg>" type="image/svg+xml">
   
@@ -38,7 +35,6 @@
       overflow-x:hidden;
       font-weight:500;
     }
-    /* Animated Gradient Background from your design */
     .animated-bg{
       position:fixed; inset:0; z-index:0;
       background: linear-gradient(135deg,
@@ -82,7 +78,6 @@
     .wrap{max-width:1200px; margin:0 auto; position:relative; z-index:2;}
     .row{ display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); }
 
-    /* Mobile Responsive */
     @media (max-width: 768px) {
       body { padding: 16px; }
       .wrap { padding: 0; }
@@ -99,7 +94,6 @@
       input, select, button { font-size: 14px; padding: 10px; }
     }
 
-    /* Glass container vibe */
     .card{
       background: var(--card-bg);
       backdrop-filter: blur(16px);
@@ -179,7 +173,6 @@
       animation: neonBorder 4s ease-in-out infinite;
     }
     
-    /* Mobile table wrapper */
     @media (max-width: 768px) {
       .card > div:has(table) {
         overflow-x: auto;
@@ -216,25 +209,16 @@
     .locked .content *{ filter: blur(1px) brightness(.95); pointer-events:none; user-select:none; }
     .player-hidden{ display:none !important; }
     
-    /* Error banner styles */
-    .error-banner {
-      background: rgba(255,68,68,0.2);
-      border: 2px solid var(--danger);
+    .success-banner {
+      background: rgba(0,255,136,0.2);
+      border: 2px solid var(--accent);
       border-radius: 12px;
-      padding: 16px;
+      padding: 12px 16px;
       margin-bottom: 18px;
-      color: #ff9999;
-    }
-    .error-banner h4 {
-      color: var(--danger);
-      margin: 0 0 8px 0;
-      font-family: 'Orbitron', sans-serif;
-    }
-    .error-banner code {
-      background: rgba(0,0,0,0.3);
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 13px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
   </style>
 </head>
@@ -245,13 +229,6 @@
     <h1>CRICKET FINES TRACKER 2025</h1>
     <p class="muted" style="margin-bottom:16px">Welcome to the club, where cricketers pay for their sins and every dropped catch costs you more than just runs!🏏💸</p>
 
-    <!-- Error banner for Supabase loading issues -->
-    <div id="supabaseError" class="error-banner hidden">
-      <h4>⚠️ Cloud Connection Issue</h4>
-      <p>Could not load Supabase library. This is usually caused by browser tracking prevention.</p>
-      <p><strong>To fix:</strong> Disable tracking protection for this site, or the app will work in local-only mode.</p>
-    </div>
-
     <!-- Static Gate -->
     <div class="card" id="gateCard">
       <h3 style="margin:0 0 10px; font-family:'Orbitron', sans-serif; letter-spacing:2px; color:var(--accent)">Enter Shared Password</h3>
@@ -261,12 +238,18 @@
       </div>
       <p class="muted" style="margin-top:12px; line-height:1.6;">
         📞 <strong>Don't have the password?</strong> Please check with your captain/coach.<br>
-        🔐 <strong>Access Levels:</strong> Players can view • Admin has all rights • Logins are securely controlled by Cloud Authentication.
+        🔐 <strong>Access Levels:</strong> Players can view • Admin has all rights
       </p>
     </div>
 
     <!-- App -->
     <div id="app" class="hidden">
+      <!-- Connection status banner -->
+      <div id="cloudStatus" class="success-banner hidden">
+        <span>✅</span>
+        <span id="cloudStatusText">Connected to cloud</span>
+      </div>
+      
       <div class="card">
         <div class="row">
           <div>
@@ -274,7 +257,6 @@
             <div class="statusline">
               <span id="status">Local</span>
               <span id="statusCloud" class="dot hidden"></span>
-              <span id="statusRealtime" class="dot hidden"></span>
             </div>
           </div>
           <div id="cloudModeCol" class="player-hidden">
@@ -285,13 +267,6 @@
               <option value="cloud_write">Cloud — Admin write</option>
             </select>
           </div>
-          <div id="realtimeModeCol" class="player-hidden">
-            <label>Realtime</label>
-            <select id="realtimeMode">
-              <option value="off">Off</option>
-              <option value="on">On</option>
-            </select>
-          </div>
           <div style="align-self:end">
             <label style="display:block; color:var(--muted); margin-bottom:6px; font-size:11px; text-align:center; text-transform:none; letter-spacing:0.5px;">
               🚪 Escape the vault? Hit LOCK 👇
@@ -299,24 +274,6 @@
             <button id="lockBtn" class="btn secondary">Lock</button>
           </div>
         </div>
-      </div>
-
-      <div class="card player-hidden" id="settingsCard">
-        <h3 style="margin-top:0; font-family:'Orbitron', sans-serif; letter-spacing:2px; color:var(--accent)">Supabase Settings</h3>
-        <div class="row">
-          <div><label>Project URL</label><input id="supabaseUrl" placeholder="https://YOUR-PROJECT.supabase.co" readonly /></div>
-          <div><label>Anon Key</label><input id="supabaseKey" placeholder="ey..." readonly /></div>
-          <div><label>Auth Email</label><input id="authEmail" placeholder="player@team or admin@team" readonly /></div>
-          <div><label>Auth Password</label><input id="authPass" type="password" placeholder="(auto-filled from gate)" readonly /></div>
-        </div>
-        <div class="row" style="margin-top:8px">
-          <button id="saveSettings" class="btn secondary">Save Settings</button>
-          <button id="authSignIn" class="btn primary">Supabase Sign In</button>
-          <button id="authSignOut" class="btn secondary">Sign Out</button>
-          <button id="pullBtn" class="btn secondary">Load from Cloud</button>
-          <button id="pushBtn" class="btn secondary">Push to Cloud (overwrite)</button>
-        </div>
-        <p class="muted">✓ Supabase is pre-configured and auto-connects when you unlock with your password. Credentials are read-only for security.</p>
       </div>
 
       <div class="card" id="addCard">
@@ -365,22 +322,18 @@
       <div class="card">
         <h3 style="margin-top:0; font-family:'Orbitron', sans-serif; letter-spacing:2px; color:var(--accent)">Summaries</h3>
         
-        <!-- Overall Stats -->
         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px; margin-bottom:24px;">
-          <!-- Total Fines -->
           <div style="padding:20px; background:linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,255,136,0.05)); border-radius:12px; border:2px solid rgba(0,255,136,0.3); text-align:center;">
             <div style="font-size:11px; color:var(--accent); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; font-weight:600;">💰 Total Fines</div>
             <div id="totalFines" style="font-size:42px; font-weight:900; color:var(--accent); font-family:'Orbitron', sans-serif; text-shadow:0 0 20px rgba(0,255,136,0.5);">0</div>
           </div>
           
-          <!-- Unpaid -->
           <div style="padding:20px; background:linear-gradient(135deg, rgba(255,68,68,0.15), rgba(255,68,68,0.05)); border-radius:12px; border:2px solid rgba(255,68,68,0.3); text-align:center;">
             <div style="font-size:11px; color:#ff99a5; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; font-weight:600;">🔴 Unpaid</div>
             <div id="totalUnpaid" style="font-size:42px; font-weight:900; color:#ff4444; font-family:'Orbitron', sans-serif; text-shadow:0 0 20px rgba(255,68,68,0.5);">0</div>
             <div id="unpaidPercentage" style="font-size:12px; color:#ff99a5; margin-top:4px; font-weight:600;">0%</div>
           </div>
           
-          <!-- Paid -->
           <div style="padding:20px; background:linear-gradient(135deg, rgba(130,245,200,0.15), rgba(130,245,200,0.05)); border-radius:12px; border:2px solid rgba(130,245,200,0.3); text-align:center;">
             <div style="font-size:11px; color:#82f5c8; text-transform:uppercase; letter-spacing:1.5px; margin-bottom:8px; font-weight:600;">🟢 Paid</div>
             <div id="totalPaid" style="font-size:42px; font-weight:900; color:#00ff88; font-family:'Orbitron', sans-serif; text-shadow:0 0 20px rgba(0,255,136,0.5);">0</div>
@@ -388,7 +341,6 @@
           </div>
         </div>
 
-        <!-- Breakdown by category -->
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
           <div>
             <h4 style="margin:0 0 12px; color:var(--accent); font-size:14px; text-transform:uppercase; letter-spacing:1.5px;">📊 Totals by Player</h4>
@@ -422,6 +374,7 @@
           <button id="exportBtn" class="btn secondary">Export CSV</button>
           <button id="importBtn" class="btn secondary">Import CSV</button>
           <input type="file" id="fileInput" accept=".csv,text/csv" class="hidden" />
+          <button id="pullBtn" class="btn secondary">Refresh from Cloud</button>
           <button id="clearAll" class="btn danger">Clear Local Data</button>
         </div>
       </div>
@@ -443,7 +396,7 @@
       color: var(--muted);
       letter-spacing: 0.5px;
     ">
-      Designed and Devloped by 
+      Designed and Developed by 
       <span style="
         font-family: 'Orbitron', sans-serif;
         font-size: 24px;
@@ -465,65 +418,167 @@
   </footer>
 
   <script>
-    // ======= Check if Supabase loaded =======
-    let supabaseAvailable = false;
-    
-    function checkSupabase() {
-      if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-        supabaseAvailable = true;
-        console.log('✅ Supabase library loaded successfully');
-        return true;
-      }
-      console.warn('⚠️ Supabase library not available');
-      document.getElementById('supabaseError').classList.remove('hidden');
-      return false;
-    }
-    
-    // Check on load
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', checkSupabase);
-    } else {
-      checkSupabase();
-    }
-
-    // ======= Static gate passwords (obfuscated) =======
+    // ========================================
+    // CONFIGURATION - Edit these values
+    // ========================================
     const STATIC_PASSWORD_ADMIN  = "TeamFines@2025?";
     const STATIC_PASSWORD_PLAYER = "kumeufines@2025?";
-    const ROLE_KEY = "fines_role_v1";
     
-    // ======= Supabase Configuration =======
     const SUPABASE_URL = "https://zkosstrhgmgvwpbdnqqs.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprb3NzdHJobWd2d3BiZG5xcXMiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc2MjIxMDEwMSwiZXhwIjoyMDc3Nzg2MTAxfQ.MN2_mhUZZ5x31W_Cn9a1sbw0QFG8XT_8WTP4CTBQTR8";
     const ADMIN_EMAIL = "admin@fake1.lol";
     const PLAYER_EMAIL = "players@fake1.lol";
-    // =============================================================================
+    
+    // ========================================
+    // SUPABASE REST API CLIENT (No external library needed!)
+    // ========================================
+    class SupabaseREST {
+      constructor(url, anonKey) {
+        this.url = url;
+        this.anonKey = anonKey;
+        this.accessToken = null;
+        this.user = null;
+      }
+      
+      get headers() {
+        const h = {
+          'apikey': this.anonKey,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        };
+        if (this.accessToken) {
+          h['Authorization'] = `Bearer ${this.accessToken}`;
+        } else {
+          h['Authorization'] = `Bearer ${this.anonKey}`;
+        }
+        return h;
+      }
+      
+      async signIn(email, password) {
+        try {
+          const res = await fetch(`${this.url}/auth/v1/token?grant_type=password`, {
+            method: 'POST',
+            headers: {
+              'apikey': this.anonKey,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+          });
+          
+          const data = await res.json();
+          
+          if (!res.ok) {
+            console.error('Sign in failed:', data);
+            return { error: data };
+          }
+          
+          this.accessToken = data.access_token;
+          this.user = data.user;
+          console.log('✅ Signed in successfully:', this.user?.email);
+          return { data };
+        } catch (err) {
+          console.error('Sign in error:', err);
+          return { error: { message: err.message } };
+        }
+      }
+      
+      async signOut() {
+        this.accessToken = null;
+        this.user = null;
+      }
+      
+      async select(table, options = {}) {
+        try {
+          let url = `${this.url}/rest/v1/${table}?select=*`;
+          if (options.order) {
+            url += `&order=${options.order}`;
+          }
+          
+          const res = await fetch(url, {
+            method: 'GET',
+            headers: this.headers
+          });
+          
+          if (!res.ok) {
+            const err = await res.json();
+            return { error: err };
+          }
+          
+          const data = await res.json();
+          return { data };
+        } catch (err) {
+          return { error: { message: err.message } };
+        }
+      }
+      
+      async upsert(table, row) {
+        try {
+          const res = await fetch(`${this.url}/rest/v1/${table}`, {
+            method: 'POST',
+            headers: {
+              ...this.headers,
+              'Prefer': 'resolution=merge-duplicates,return=representation'
+            },
+            body: JSON.stringify(row)
+          });
+          
+          if (!res.ok) {
+            const err = await res.json();
+            console.error('Upsert error:', err);
+            return { error: err };
+          }
+          
+          const data = await res.json();
+          return { data };
+        } catch (err) {
+          return { error: { message: err.message } };
+        }
+      }
+      
+      async delete(table, column, value) {
+        try {
+          const res = await fetch(`${this.url}/rest/v1/${table}?${column}=eq.${value}`, {
+            method: 'DELETE',
+            headers: this.headers
+          });
+          
+          if (!res.ok) {
+            const err = await res.json();
+            return { error: err };
+          }
+          
+          return { data: true };
+        } catch (err) {
+          return { error: { message: err.message } };
+        }
+      }
+    }
+    
+    // Initialize our REST client
+    const supabase = new SupabaseREST(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    // ========================================
+    // APP STATE & HELPERS
+    // ========================================
+    const ROLE_KEY = "fines_role_v1";
+    const LS_KEY = "fines_neon_reskin_local_v1";
+    const GATE_KEY = "fines_neon_reskin_gate_v1";
+    const CLOUD_MODE_KEY = "fines_glass_cloud_mode";
 
-    // Local keys
-    const LS_KEY="fines_neon_reskin_local_v1", SET_KEY="fines_neon_reskin_settings_v1", GATE_KEY="fines_neon_reskin_gate_v1";
-    const CLOUD_MODE_KEY="fines_glass_cloud_mode", REALTIME_KEY="fines_glass_realtime";
-
-    // Supabase
-    let supabase=null, supaAuth=null, realtimeChannel=null;
-    let supaCfg={ url: SUPABASE_URL, key: SUPABASE_ANON_KEY };
-
-    const $ = (id)=>document.getElementById(id);
-    const canWrite = ()=> {
+    const $ = (id) => document.getElementById(id);
+    
+    const canWrite = () => {
       const role = localStorage.getItem(ROLE_KEY);
       const cloudMode = $('cloudMode').value;
-      // Admin in cloud_write mode can always write (even if Supabase auth fails)
-      if(role === 'admin' && cloudMode === 'cloud_write') return true;
-      // Otherwise, need proper Supabase auth
-      return cloudMode === 'cloud_write' && !!supaAuth?.user;
+      return role === 'admin' && cloudMode === 'cloud_write';
     };
-    const inCloud = ()=> $('cloudMode').value.startsWith('cloud');
-    const realtimeOn = ()=> $('realtimeMode').value === 'on';
+    
+    const inCloud = () => $('cloudMode').value.startsWith('cloud');
 
-    // UUID generator that works on HTTP and HTTPS
     function generateUUID() {
       if (typeof crypto !== 'undefined' && crypto.randomUUID) {
         return crypto.randomUUID();
       }
-      // Fallback for HTTP (non-secure contexts)
       return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
         const r = Math.random() * 16 | 0;
         const v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -531,528 +586,506 @@
       });
     }
 
-    // Unlock gate
-    async function unlock(pass){
-      if (!pass) { alert('Enter password'); return; }
+    // ========================================
+    // UNLOCK / LOGIN
+    // ========================================
+    async function unlock(pass) {
+      if (!pass) { 
+        alert('Please enter a password'); 
+        return; 
+      }
       
-      console.log('🔐 Attempting unlock with password length:', pass.length);
-      console.log('🔐 Expected admin password:', STATIC_PASSWORD_ADMIN);
-      console.log('🔐 Expected player password:', STATIC_PASSWORD_PLAYER);
-      console.log('🔐 Password match admin?', pass === STATIC_PASSWORD_ADMIN);
-      console.log('🔐 Password match player?', pass === STATIC_PASSWORD_PLAYER);
+      console.log('🔐 Attempting unlock...');
       
-      if (pass === STATIC_PASSWORD_ADMIN){
+      if (pass === STATIC_PASSWORD_ADMIN) {
         console.log('✅ Admin password matched!');
-        // Clear any old settings first
-        localStorage.removeItem(CLOUD_MODE_KEY);
-        
         localStorage.setItem(ROLE_KEY, 'admin');
         localStorage.setItem(GATE_KEY, pass);
         localStorage.setItem(CLOUD_MODE_KEY, 'cloud_write');
         
-        console.log('Admin unlock: cloud mode set to:', localStorage.getItem(CLOUD_MODE_KEY));
-        
-        // Auto-setup Supabase
-        await setupSupabase();
-        
-        console.log('Supabase setup complete, supabase object:', !!supabase);
-        
-        // Auto-login to Supabase
-        if(supabase) {
-          console.log('Attempting Supabase login with:', ADMIN_EMAIL, 'password length:', pass.length);
-          try {
-            const { data, error } = await supabase.auth.signInWithPassword({ 
-              email: ADMIN_EMAIL, 
-              password: pass 
-            });
-            if(error) {
-              console.error('❌ Supabase login failed:', error);
-              console.error('Error details:', JSON.stringify(error, null, 2));
-              // Don't show alert, just log - admin can still work locally
-              console.warn('Continuing without cloud auth - local mode will work');
-            } else {
-              console.log('✅ Supabase login successful!', data);
-              // Load data from cloud
-              await pull();
-            }
-          } catch(err) {
-            console.error('❌ Supabase login exception:', err);
-          }
-        } else {
-          console.warn('⚠️ Supabase not available - working in local mode');
+        // Try to sign in to Supabase
+        const { error } = await supabase.signIn(ADMIN_EMAIL, pass);
+        if (error) {
+          console.warn('⚠️ Supabase auth failed, but continuing:', error.message || error.error_description);
         }
         
+        // Load data from cloud
+        await pull();
         showApp(true);
         return;
       }
       
-      if (pass === STATIC_PASSWORD_PLAYER){
+      if (pass === STATIC_PASSWORD_PLAYER) {
         console.log('✅ Player password matched!');
         localStorage.setItem(ROLE_KEY, 'player');
         localStorage.setItem(GATE_KEY, pass);
         localStorage.setItem(CLOUD_MODE_KEY, 'cloud_read');
         
-        // Auto-setup Supabase
-        await setupSupabase();
-        
-        // Auto-login to Supabase
-        if(supabase) {
-          const { error } = await supabase.auth.signInWithPassword({ 
-            email: PLAYER_EMAIL, 
-            password: pass 
-          });
-          if(error) {
-            console.error('Supabase login failed:', error.message);
-          } else {
-            // Load data from cloud
-            await pull();
-          }
+        // Try to sign in to Supabase
+        const { error } = await supabase.signIn(PLAYER_EMAIL, pass);
+        if (error) {
+          console.warn('⚠️ Supabase auth failed, but continuing:', error.message || error.error_description);
         }
         
+        // Load data from cloud
+        await pull();
         showApp(true);
         return;
       }
       
-      console.log('❌ Password did not match either admin or player');
-      alert('Wrong password. Please try again.\n\nHint: Check with your captain for the correct password.');
+      alert('❌ Wrong password. Please try again.');
     }
 
-    function showApp(yes){ 
-      $('gateCard').classList[yes?'add':'remove']('hidden'); 
-      $('app').classList[yes?'remove':'add']('hidden'); 
-      if(yes){ 
-        // First, make sure admin elements are visible
+    function showApp(yes) { 
+      $('gateCard').classList[yes ? 'add' : 'remove']('hidden'); 
+      $('app').classList[yes ? 'remove' : 'add']('hidden'); 
+      
+      if (yes) { 
         const role = localStorage.getItem(ROLE_KEY);
-        if(role === 'admin') {
+        
+        // Show admin elements
+        if (role === 'admin') {
           document.querySelectorAll('.player-hidden').forEach(el => el.style.display = '');
         }
         
-        // Then load settings which will set the dropdown value
-        loadSettings(); 
-        render(getData()); 
+        // Set cloud mode dropdown
+        const cloudMode = localStorage.getItem(CLOUD_MODE_KEY) || 'local';
+        $('cloudMode').value = cloudMode;
         
-        // Force unlock Add Fine card for admin
-        if(role === 'admin') {
-          const addCard = $('addCard');
-          addCard.classList.remove('locked');
-          const mask = addCard.querySelector('.mask');
-          if(mask) mask.classList.add('hidden');
-          addCard.querySelectorAll('input,select,button').forEach(el => { el.disabled = false; });
+        // Show cloud status
+        if (supabase.user) {
+          $('cloudStatus').classList.remove('hidden');
+          $('cloudStatusText').textContent = `Connected as ${supabase.user.email}`;
         }
         
-        // Update status after a small delay to ensure cloud mode is set
-        setTimeout(() => updateStatus(), 100);
+        updateStatus();
+        render(getData());
       }
     }
 
-    $('gateBtn').addEventListener('click', async ()=> await unlock($('gatePassword').value));
-    $('gatePassword').addEventListener('keydown', async (e)=>{ if(e.key==='Enter'){ e.preventDefault(); await unlock($('gatePassword').value); } });
-    $('lockBtn').addEventListener('click', async ()=>{ 
-      if(supabase) await supabase.auth.signOut();
+    // ========================================
+    // EVENT LISTENERS
+    // ========================================
+    $('gateBtn').addEventListener('click', async () => await unlock($('gatePassword').value));
+    $('gatePassword').addEventListener('keydown', async (e) => { 
+      if (e.key === 'Enter') { 
+        e.preventDefault(); 
+        await unlock($('gatePassword').value); 
+      } 
+    });
+    
+    $('lockBtn').addEventListener('click', async () => { 
+      await supabase.signOut();
       localStorage.removeItem(GATE_KEY); 
-      localStorage.removeItem('fines_role_v1'); 
+      localStorage.removeItem(ROLE_KEY);
+      localStorage.removeItem(CLOUD_MODE_KEY);
+      $('cloudStatus').classList.add('hidden');
       showApp(false); 
     });
     
-    // Check if already unlocked on page load
-    (async ()=>{ 
-      const s=localStorage.getItem(GATE_KEY); 
-      if(s && (s === STATIC_PASSWORD_ADMIN || s === STATIC_PASSWORD_PLAYER)) {
-        await unlock(s);
-      }
-    })();
+    $('cloudMode').addEventListener('change', () => { 
+      localStorage.setItem(CLOUD_MODE_KEY, $('cloudMode').value); 
+      updateStatus(); 
+    });
 
-    // Settings
-    function saveSettings(){
-      supaCfg={ url:$('supabaseUrl').value.trim(), key:$('supabaseKey').value.trim() };
-      const pack={ ...supaCfg, email:$('authEmail').value.trim()? $('authEmail').value.trim():null };
-      localStorage.setItem(SET_KEY, JSON.stringify(pack));
-      localStorage.setItem(CLOUD_MODE_KEY, $('cloudMode').value);
-      localStorage.setItem(REALTIME_KEY, $('realtimeMode').value);
-      setupSupabase();
-    }
-    function loadSettings(){
-      // Always use hardcoded Supabase credentials
-      supaCfg.url = SUPABASE_URL;
-      supaCfg.key = SUPABASE_ANON_KEY;
-      $('supabaseUrl').value = supaCfg.url;
-      $('supabaseKey').value = supaCfg.key;
-      
-      // Set email based on role
-      const role = localStorage.getItem(ROLE_KEY);
-      if(role === 'admin') {
-        $('authEmail').value = ADMIN_EMAIL;
-      } else if(role === 'player') {
-        $('authEmail').value = PLAYER_EMAIL;
-      }
-      
-      // CRITICAL: Set dropdown to match localStorage
-      const cloudMode = localStorage.getItem(CLOUD_MODE_KEY) || 'local';
-      const realtimeMode = localStorage.getItem(REALTIME_KEY) || 'off';
-      
-      console.log('loadSettings - setting dropdown to:', cloudMode);
-      $('cloudMode').value = cloudMode;
-      $('realtimeMode').value = realtimeMode;
-      console.log('loadSettings - dropdown is now:', $('cloudMode').value);
-      
-      updateStatus();
-    }
-    $('saveSettings').addEventListener('click', saveSettings);
-
-    async function setupSupabase(){
-      if (!supabaseAvailable) {
-        console.warn('Supabase library not loaded - skipping setup');
-        supabase = null;
-        supaAuth = null;
-        return;
-      }
-      
-      if(supaCfg.url && supaCfg.key){
-        try {
-          const { createClient } = window.supabase;
-          supabase = createClient(supaCfg.url, supaCfg.key);
-          supaAuth = supabase.auth;
-          console.log('✅ Supabase client initialized');
-        } catch(err) {
-          console.error('Failed to create Supabase client:', err);
-          supabase = null;
-          supaAuth = null;
-        }
-      } else { 
-        supabase=null; 
-        supaAuth=null; 
-      }
-      manageRealtime();
-      updateStatus();
+    // ========================================
+    // DATA FUNCTIONS
+    // ========================================
+    function getData() { 
+      const r = localStorage.getItem(LS_KEY); 
+      try { return r ? JSON.parse(r) : []; } 
+      catch { return []; } 
     }
     
-    // Initialize Supabase on page load (after checking if library is available)
-    setTimeout(() => {
-      checkSupabase();
-      setupSupabase();
-    }, 100);
+    function setData(arr) { 
+      localStorage.setItem(LS_KEY, JSON.stringify(arr)); 
+      render(arr); 
+    }
 
-    // Auth
-    $('authSignIn').addEventListener('click', async()=>{
-      if(!supabase){ alert('Supabase not initialized. Check console for errors.'); return; }
+    async function pull() {
+      console.log('📥 Loading data from cloud...');
+      const { data, error } = await supabase.select('fines', { order: 'created_at.desc' });
       
-      const role = localStorage.getItem(ROLE_KEY);
-      const gatePass = localStorage.getItem(GATE_KEY);
-      
-      let email, password;
-      if(role === 'admin') {
-        email = ADMIN_EMAIL;
-        password = gatePass || STATIC_PASSWORD_ADMIN;
-      } else if(role === 'player') {
-        email = PLAYER_EMAIL;
-        password = gatePass || STATIC_PASSWORD_PLAYER;
-      } else {
-        alert('Please login first');
+      if (error) {
+        console.error('Failed to load from cloud:', error);
+        alert('Failed to load from cloud: ' + (error.message || JSON.stringify(error)));
         return;
       }
       
-      console.log('Manual sign-in attempt with:', email);
+      const mapped = (data || []).map(r => ({
+        id: r.id,
+        season: r.season,
+        player: r.player,
+        match: r.match,
+        reason: r.reason,
+        amount: Number(r.amount || 0),
+        paid: !!r.paid,
+        createdAt: r.created_at
+      }));
       
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if(error){ 
-        console.error('Sign-in error:', error);
-        alert('Sign-in failed!\n\n' + error.message + '\n\nCheck:\n- User exists in Supabase\n- Correct credentials\n- Email confirmed'); 
-        return; 
+      console.log(`✅ Loaded ${mapped.length} fines from cloud`);
+      setData(mapped);
+    }
+
+    async function upsertCloud(rec) {
+      const row = {
+        id: rec.id,
+        season: rec.season,
+        player: rec.player,
+        match: rec.match,
+        reason: rec.reason,
+        amount: rec.amount,
+        paid: rec.paid,
+        created_at: rec.createdAt
+      };
+      
+      console.log('📤 Saving to cloud:', row);
+      const { data, error } = await supabase.upsert('fines', row);
+      
+      if (error) {
+        console.error('Failed to save:', error);
+        alert('Failed to save: ' + (error.message || JSON.stringify(error)));
+        return false;
       }
       
-      console.log('Sign-in successful!', data);
-      alert('✓ Successfully signed in to Supabase!');
-      updateStatus();
-      if(inCloud()) await pull();
-    });
-    $('authSignOut').addEventListener('click', async()=>{
-      if(supabase){ await supabase.auth.signOut(); }
-      updateStatus();
-    });
+      console.log('✅ Saved successfully');
+      return true;
+    }
 
-    // Mode toggles
-    $('cloudMode').addEventListener('change', ()=>{ localStorage.setItem(CLOUD_MODE_KEY, $('cloudMode').value); updateStatus(); });
-    $('realtimeMode').addEventListener('change', ()=>{ localStorage.setItem(REALTIME_KEY, $('realtimeMode').value); manageRealtime(); updateStatus(); });
+    async function deleteCloud(id) {
+      const { error } = await supabase.delete('fines', 'id', id);
+      if (error) {
+        alert('Failed to delete: ' + (error.message || JSON.stringify(error)));
+        return false;
+      }
+      return true;
+    }
 
-    function updateStatus(){
-      const role = localStorage.getItem('fines_role_v1') || 'player';
+    // ========================================
+    // UI FUNCTIONS
+    // ========================================
+    function updateStatus() {
+      const role = localStorage.getItem(ROLE_KEY) || 'player';
       
-      console.log('updateStatus called - Role:', role, 'localStorage cloudMode:', localStorage.getItem(CLOUD_MODE_KEY), 'dropdown value:', $('cloudMode').value);
-      
-      // Show/hide admin-only elements
-      const playerHiddenElements = document.querySelectorAll('.player-hidden');
-      playerHiddenElements.forEach(el => {
-        if(role === 'player') {
-          el.style.display = 'none';
-        } else {
-          el.style.display = '';
-        }
+      // Show/hide admin elements
+      document.querySelectorAll('.player-hidden').forEach(el => {
+        el.style.display = role === 'player' ? 'none' : '';
       });
       
-      const parts=[];
-      if(!supabaseAvailable) { parts.push('Local only (cloud unavailable)'); }
-      else if($('cloudMode').value==='local'){ parts.push('Local'); }
-      else if($('cloudMode').value==='cloud_read'){ parts.push('Cloud read'); }
-      else { parts.push('Cloud admin write'); }
-      if(supaAuth?.user){ parts.push(`Signed in: ${$('authEmail').value||supaAuth.user.email||'user'}`); }
-      $('status').textContent = (role==='admin' ? 'Admin • ' : 'Player • ') + parts.join(' • ');
-      $('statusCloud').classList[inCloud()&&supabaseAvailable?'remove':'add']('hidden');
-      $('statusRealtime').classList[realtimeOn()&&inCloud()&&supabaseAvailable?'remove':'add']('hidden');
+      // Status text
+      const parts = [];
+      if ($('cloudMode').value === 'local') parts.push('Local');
+      else if ($('cloudMode').value === 'cloud_read') parts.push('Cloud read-only');
+      else parts.push('Cloud admin');
+      
+      if (supabase.user) parts.push(`(${supabase.user.email})`);
+      
+      $('status').textContent = (role === 'admin' ? '👑 Admin • ' : '👤 Player • ') + parts.join(' ');
+      $('statusCloud').classList[inCloud() ? 'remove' : 'add']('hidden');
 
-      if(role==='player'){ 
-        $('cloudMode').value='cloud_read'; 
-        $('cloudMode').setAttribute('disabled','disabled'); 
+      // Lock cloud mode for players
+      if (role === 'player') { 
+        $('cloudMode').value = 'cloud_read'; 
+        $('cloudMode').disabled = true; 
       } else { 
-        $('cloudMode').removeAttribute('disabled'); 
+        $('cloudMode').disabled = false; 
       }
 
+      // Lock/unlock add card
       const addCard = $('addCard');
-      // Players always locked
-      // Admin: unlocked in local mode, locked in cloud modes unless can write
-      let lock = false;
-      if(role === 'player') {
-        lock = true;
-      } else if(role === 'admin') {
-        if($('cloudMode').value === 'local') {
-          lock = false; // Admin can always add in local mode
-        } else {
-          lock = !canWrite(); // In cloud mode, need proper auth to write
-        }
-      }
+      const lock = role === 'player' || ($('cloudMode').value !== 'local' && !canWrite());
       
-      console.log('Lock status - Role:', role, 'Cloud Mode:', $('cloudMode').value, 'Lock:', lock, 'canWrite:', canWrite());
-      
-      addCard.classList[lock?'add':'remove']('locked');
-      addCard.querySelector('.mask').classList[lock?'remove':'add']('hidden');
-      addCard.querySelectorAll('input,select,button').forEach(el => { el.disabled = lock; });
+      addCard.classList[lock ? 'add' : 'remove']('locked');
+      addCard.querySelector('.mask').classList[lock ? 'remove' : 'add']('hidden');
+      addCard.querySelectorAll('input,select,button').forEach(el => el.disabled = lock);
 
       render(getData());
     }
 
-    async function manageRealtime(){
-      if(!supabase || !realtimeOn() || !inCloud()){ if(realtimeChannel){ await realtimeChannel.unsubscribe(); realtimeChannel=null; } return; }
-      if(realtimeChannel) return;
-      realtimeChannel = supabase
-        .channel('public:fines-changes')
-        .on('postgres_changes',{ event:'*', schema:'public', table:'fines' }, async ()=>{ await pull(); })
-        .subscribe();
+    function groupBy(arr, fn) { 
+      return arr.reduce((m, x) => { 
+        const k = fn(x); 
+        (m[k] = m[k] || []).push(x); 
+        return m; 
+      }, {}); 
     }
+    
+    const fmt = n => (n == null || isNaN(n)) ? "" : "$" + Number(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
 
-    // Data
-    function getData(){ const r=localStorage.getItem(LS_KEY); try{ return r? JSON.parse(r):[] }catch{ return [] } }
-    function setData(arr){ localStorage.setItem(LS_KEY, JSON.stringify(arr)); render(arr); }
-
-    function groupBy(a, f){ return a.reduce((m,x)=>{ const k=f(x); (m[k]??=[]).push(x); return m; },{}); }
-    const fmt = n => (n==null||isNaN(n))? "" : "$" + Number(n).toLocaleString(undefined,{maximumFractionDigits:0});
-
-    function render(all){
+    function render(all) {
       const rows = applyFilters(all);
-      const tb = document.querySelector('#dataTable tbody'); tb.innerHTML='';
+      const tb = document.querySelector('#dataTable tbody');
+      tb.innerHTML = '';
 
-      const showDelete = canWrite() || !inCloud(); // hide delete in cloud read-only
-      for(const r of rows){
-        const delCell = showDelete ? `<button class="btn secondary delBtn" data-id="${r.id}">Delete</button>` : `<span class="muted">—</span>`;
+      const showDelete = canWrite() || !inCloud();
+      
+      for (const r of rows) {
+        const delCell = showDelete 
+          ? `<button class="btn secondary delBtn" data-id="${r.id}">Delete</button>` 
+          : `<span class="muted">—</span>`;
         const paidToggle = (canWrite() || !inCloud())
-          ? `<input type="checkbox" ${r.paid?'checked':''} data-id="${r.id}" class="paidToggle"/>`
-          : `<input type="checkbox" ${r.paid?'checked':''} disabled/>`;
+          ? `<input type="checkbox" ${r.paid ? 'checked' : ''} data-id="${r.id}" class="paidToggle"/>`
+          : `<input type="checkbox" ${r.paid ? 'checked' : ''} disabled/>`;
+        
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><strong>${r.player||''}</strong></td>
-          <td>${r.match||''}</td>
-          <td>${r.reason||''}</td>
+          <td><strong>${r.player || ''}</strong></td>
+          <td>${r.match || ''}</td>
+          <td>${r.reason || ''}</td>
           <td style="text-align:right">${fmt(r.amount)}</td>
           <td style="text-align:center">${paidToggle}</td>
           <td style="text-align:right">${delCell}</td>`;
         tb.appendChild(tr);
       }
 
-      tb.querySelectorAll('.paidToggle').forEach(cb=> {
+      // Paid toggle handlers
+      tb.querySelectorAll('.paidToggle').forEach(cb => {
         cb.addEventListener('change', async (e) => {
           const id = e.currentTarget.getAttribute('data-id');
-          const cur = getData().find(x=>x.id===id); 
-          if(!cur) {
-            console.error('Could not find fine with id:', id);
-            return;
-          }
+          const cur = getData().find(x => x.id === id);
+          if (!cur) return;
           
-          const patch = { paid: !cur.paid };
-          const updatedRecord = { ...cur, ...patch };
+          const updated = { ...cur, paid: !cur.paid };
           
-          console.log('Toggling paid status:', id, 'New value:', patch.paid, 'canWrite:', canWrite(), 'inCloud:', inCloud());
-          
-          if(inCloud() && supabase) {
-            // In cloud mode - try to update Supabase
-            console.log('Updating Supabase...');
-            await upsertCloud(updatedRecord);
-            await pull(); // Refresh from cloud
-            console.log('Supabase updated and data refreshed');
+          if (inCloud()) {
+            await upsertCloud(updated);
+            await pull();
           } else {
-            // Local mode - update localStorage
-            console.log('Updating localStorage...');
-            setData(getData().map(x=>x.id===id ? updatedRecord : x));
+            setData(getData().map(x => x.id === id ? updated : x));
           }
         });
       });
-      tb.querySelectorAll('.delBtn').forEach(btn=> {
-        btn.addEventListener('click', async (e)=>{
+
+      // Delete handlers
+      tb.querySelectorAll('.delBtn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
           const id = e.currentTarget.getAttribute('data-id');
-          if(!confirm('Delete this fine?')) return;
-          if(canWrite() && supabase){ await deleteCloud(id); await pull(); } else { setData(getData().filter(x=>x.id!==id)); }
+          if (!confirm('Delete this fine?')) return;
+          
+          if (inCloud() && canWrite()) {
+            await deleteCloud(id);
+            await pull();
+          } else {
+            setData(getData().filter(x => x.id !== id));
+          }
         });
       });
 
       // Summaries
-      const sum = arr => arr.reduce((t,r)=> t+(Number(r.amount)||0), 0);
-      const unpaid = arr => arr.filter(r=>!r.paid).reduce((t,r)=> t+(Number(r.amount)||0), 0);
+      const sum = arr => arr.reduce((t, r) => t + (Number(r.amount) || 0), 0);
+      const unpaid = arr => arr.filter(r => !r.paid).reduce((t, r) => t + (Number(r.amount) || 0), 0);
       
-      // Overall totals
       const totalAll = sum(rows);
       const totalUnpaidAll = unpaid(rows);
       const totalPaidAll = totalAll - totalUnpaidAll;
       
-      // Calculate percentages
       const unpaidPercent = totalAll > 0 ? ((totalUnpaidAll / totalAll) * 100).toFixed(1) : 0;
       const paidPercent = totalAll > 0 ? ((totalPaidAll / totalAll) * 100).toFixed(1) : 0;
       
-      document.getElementById('totalFines').textContent = fmt(totalAll);
-      document.getElementById('totalUnpaid').textContent = fmt(totalUnpaidAll);
-      document.getElementById('totalPaid').textContent = fmt(totalPaidAll);
-      document.getElementById('unpaidPercentage').textContent = unpaidPercent + '%';
-      document.getElementById('paidPercentage').textContent = paidPercent + '%';
+      $('totalFines').textContent = fmt(totalAll);
+      $('totalUnpaid').textContent = fmt(totalUnpaidAll);
+      $('totalPaid').textContent = fmt(totalPaidAll);
+      $('unpaidPercentage').textContent = unpaidPercent + '%';
+      $('paidPercentage').textContent = paidPercent + '%';
       
-      // Breakdowns
-      const byP = groupBy(rows, r=> r.player||'');
-      const byM = groupBy(rows, r=> r.match||'');
-      const byPM = groupBy(rows, r=> (r.player||'')+' • '+(r.match||''));
+      const byP = groupBy(rows, r => r.player || '');
+      const byM = groupBy(rows, r => r.match || '');
+      const byPM = groupBy(rows, r => (r.player || '') + ' • ' + (r.match || ''));
       
-      document.getElementById('totalsByPlayer').innerHTML = Object.entries(byP).sort((a,b)=>sum(b[1])-sum(a[1])).map(([k,v])=> `<div style="padding:8px 12px; background:rgba(255,255,255,0.05); border-radius:8px; display:flex; justify-content:space-between; align-items:center;"><span>${k||'(blank)'}</span><span style="font-weight:700; color:var(--accent)">${fmt(sum(v))}</span></div>`).join('');
+      $('totalsByPlayer').innerHTML = Object.entries(byP)
+        .sort((a, b) => sum(b[1]) - sum(a[1]))
+        .map(([k, v]) => `<div style="padding:8px 12px; background:rgba(255,255,255,0.05); border-radius:8px; display:flex; justify-content:space-between;"><span>${k || '(blank)'}</span><span style="font-weight:700; color:var(--accent)">${fmt(sum(v))}</span></div>`)
+        .join('');
       
-      document.getElementById('totalsByMatch').innerHTML = Object.entries(byM).sort((a,b)=>sum(b[1])-sum(a[1])).map(([k,v])=> `<div style="padding:8px 12px; background:rgba(255,255,255,0.05); border-radius:8px; display:flex; justify-content:space-between; align-items:center;"><span>${k||'(blank)'}</span><span style="font-weight:700; color:var(--accent)">${fmt(sum(v))}</span></div>`).join('');
+      $('totalsByMatch').innerHTML = Object.entries(byM)
+        .sort((a, b) => sum(b[1]) - sum(a[1]))
+        .map(([k, v]) => `<div style="padding:8px 12px; background:rgba(255,255,255,0.05); border-radius:8px; display:flex; justify-content:space-between;"><span>${k || '(blank)'}</span><span style="font-weight:700; color:var(--accent)">${fmt(sum(v))}</span></div>`)
+        .join('');
       
-      document.getElementById('totalsByPlayerMatch').innerHTML = Object.entries(byPM).sort((a,b)=>sum(b[1])-sum(a[1])).map(([k,v])=> `<div style="padding:8px 12px; background:rgba(255,255,255,0.05); border-radius:8px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:13px;">${k||'(blank)'}</span><span style="font-weight:700; color:var(--accent)">${fmt(sum(v))}</span></div>`).join('');
+      $('totalsByPlayerMatch').innerHTML = Object.entries(byPM)
+        .sort((a, b) => sum(b[1]) - sum(a[1]))
+        .map(([k, v]) => `<div style="padding:8px 12px; background:rgba(255,255,255,0.05); border-radius:8px; display:flex; justify-content:space-between;"><span style="font-size:13px;">${k || '(blank)'}</span><span style="font-weight:700; color:var(--accent)">${fmt(sum(v))}</span></div>`)
+        .join('');
       
-      document.getElementById('unpaidByPlayer').innerHTML = Object.entries(byP).sort((a,b)=>unpaid(b[1])-unpaid(a[1])).map(([k,v])=> {
-        const t=sum(v), u=unpaid(v), p=t-u;
-        return `<div style="padding:8px 12px; background:rgba(255,255,255,0.05); border-radius:8px;">
-          <div style="font-weight:600; margin-bottom:4px;">${k||'(blank)'}</div>
-          <div style="display:flex; gap:12px; font-size:13px;">
-            <span style="color:#ff99a5;">Unpaid: <b>${fmt(u)}</b></span>
-            <span style="color:#82f5c8;">Paid: <b>${fmt(p)}</b></span>
-          </div>
-        </div>`;
-      }).join('');
+      $('unpaidByPlayer').innerHTML = Object.entries(byP)
+        .sort((a, b) => unpaid(b[1]) - unpaid(a[1]))
+        .map(([k, v]) => {
+          const t = sum(v), u = unpaid(v), p = t - u;
+          return `<div style="padding:8px 12px; background:rgba(255,255,255,0.05); border-radius:8px;">
+            <div style="font-weight:600; margin-bottom:4px;">${k || '(blank)'}</div>
+            <div style="display:flex; gap:12px; font-size:13px;">
+              <span style="color:#ff99a5;">Unpaid: <b>${fmt(u)}</b></span>
+              <span style="color:#82f5c8;">Paid: <b>${fmt(p)}</b></span>
+            </div>
+          </div>`;
+        }).join('');
 
-      document.getElementById('statusCloud').classList[inCloud()&&supabaseAvailable?'remove':'add']('hidden');
-      document.getElementById('statusRealtime').classList[realtimeOn()&&inCloud()&&supabaseAvailable?'remove':'add']('hidden');
+      $('statusCloud').classList[inCloud() ? 'remove' : 'add']('hidden');
     }
 
-    function applyFilters(rows){
-      const p=$('filterPlayer').value.trim().toLowerCase();
-      const m=$('filterMatch').value.trim().toLowerCase();
-      const paid=$('filterPaid').value;
-      return rows.filter(r=>{
-        const a=!p || (r.player||'').toLowerCase().includes(p);
-        const b=!m || (r.match||'').toLowerCase().includes(m);
-        const c=!paid || String(!!r.paid)===paid;
+    function applyFilters(rows) {
+      const p = $('filterPlayer').value.trim().toLowerCase();
+      const m = $('filterMatch').value.trim().toLowerCase();
+      const paid = $('filterPaid').value;
+      return rows.filter(r => {
+        const a = !p || (r.player || '').toLowerCase().includes(p);
+        const b = !m || (r.match || '').toLowerCase().includes(m);
+        const c = !paid || String(!!r.paid) === paid;
         return a && b && c;
       });
     }
-    $('filterPlayer').addEventListener('input', ()=>render(getData()));
-    $('filterMatch').addEventListener('input', ()=>render(getData()));
-    $('filterPaid').addEventListener('change', ()=>render(getData()));
-    $('clearFilters').addEventListener('click', ()=>{ $('filterPlayer').value=''; $('filterMatch').value=''; $('filterPaid').value=''; render(getData()); });
 
-    // Add
-    $('addBtn').addEventListener('click', ()=> addN(1));
-    async function addN(n){
-      const rec = ()=>({ id: generateUUID(), season:$('season').value.trim(), player:$('player').value.trim(), match:$('match').value.trim(), reason:$('reason').value.trim(), amount:Number($('amount').value), paid: $('paid').value==='true', createdAt:new Date().toISOString() });
-      if(inCloud() && !canWrite()){ alert('Cloud write disabled for this account/mode.'); return; }
-      for(let i=0;i<n;i++){
-        const r = rec();
-        if(inCloud() && supabase){ await upsertCloud(r); } else { setData(getData().concat([r])); }
-      }
-      if(inCloud() && supabase) await pull();
-      $('reason').value=''; $('amount').value=''; $('reason').focus();
-    }
-
-    // CSV
-    $('exportBtn').addEventListener('click', ()=>{
-      const rows=getData(), headers=["id","season","player","match","reason","amount","paid","createdAt"];
-      const csv=[headers.join(",")].concat(rows.map(r=> headers.map(h=>{
-        const v=r[h]??""; const need=/[\",\n]/.test(String(v)); const safe=String(v).replace(/\"/g,'\"\"'); return need?`\"${safe}\"`:safe;
-      }).join(","))).join("\n");
-      const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"}), url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url; a.download="fines.csv"; a.click(); URL.revokeObjectURL(url);
-    });
-    $('importBtn').addEventListener('click', ()=> $('fileInput').click());
-    $('fileInput').addEventListener('change', async (e)=>{
-      const f=e.target.files[0]; if(!f) return;
-      const t=await f.text(); const [head,...lines]=t.split(/\r?\n/).filter(Boolean);
-      const cols=head.split(",");
-      const idx=(h)=> cols.indexOf(h);
-      const req=["season","player","match","reason","amount","paid"];
-      if(!req.every(r=> idx(r)>=0)){ alert("CSV must include: "+req.join(", ")); return; }
-      const parsed=lines.map(line=>{
-        const out=[]; let cur='', q=false; for(let i=0;i<line.length;i++){ const c=line[i]; if(c=='\"'){ if(q&&line[i+1]=='\"'){ cur+='\"'; i++; } else { q=!q; } } else if(c==',' && !q){ out.push(cur); cur=''; } else { cur+=c; } } out.push(cur);
-        const g=(h)=> (out[idx(h)]??'').replace(/^\"|\"$/g,'');
-        return { id: generateUUID(), season:g('season'), player:g('player'), match:g('match'), reason:g('reason'), amount:Number(g('amount')||0), paid:String(g('paid')).toLowerCase()==='true', createdAt:new Date().toISOString() };
-      });
-      if(inCloud() && supabase){ for(const r of parsed) await upsertCloud(r); await pull(); } else { setData(getData().concat(parsed)); }
-      e.target.value=''; alert('Import complete.');
-    });
-    $('pullBtn').addEventListener('click', pull);
-    $('pushBtn').addEventListener('click', async ()=>{
-      if(!supabase){ alert('Supabase not available'); return; }
-      if(!canWrite()){ alert('Sign in as admin & choose Cloud — Admin write'); return; }
-      if(!confirm('Replace ALL rows in cloud with local data?')) return;
-      const { error: delErr } = await supabase.from('fines').delete().neq('id','00000000-0000-0000-0000-000000000000');
-      if(delErr){ alert('Wipe failed: '+delErr.message); return; }
-      const rows = getData().map(r=> ({ id:r.id, season:r.season, player:r.player, match:r.match, reason:r.reason, amount:r.amount, paid:r.paid, created_at:r.createdAt }));
-      for(let i=0;i<rows.length;i+=500){ const chunk=rows.slice(i,i+500); const { error } = await supabase.from('fines').insert(chunk); if(error){ alert('Insert failed: '+error.message); return; } }
-      await pull(); alert('Cloud overwritten.');
+    // Filter listeners
+    $('filterPlayer').addEventListener('input', () => render(getData()));
+    $('filterMatch').addEventListener('input', () => render(getData()));
+    $('filterPaid').addEventListener('change', () => render(getData()));
+    $('clearFilters').addEventListener('click', () => { 
+      $('filterPlayer').value = ''; 
+      $('filterMatch').value = ''; 
+      $('filterPaid').value = ''; 
+      render(getData()); 
     });
 
-    // Cloud helpers
-    async function pull(){
-      if(!supabase){ console.warn('Supabase not available for pull'); return; }
-      const { data, error } = await supabase.from('fines').select('*').order('created_at',{ascending:false});
-      if(error){ alert('Load failed: '+error.message); return; }
-      const mapped=(data||[]).map(r=> ({ id:r.id, season:r.season, player:r.player, match:r.match, reason:r.reason, amount:Number(r.amount||0), paid:!!r.paid, createdAt:r.created_at }));
-      setData(mapped);
-    }
-    async function upsertCloud(rec){
-      if(!supabase){ 
-        console.error('Supabase not initialized');
-        alert('Supabase not connected. Cannot save to cloud.'); 
-        return; 
+    // Add fine
+    $('addBtn').addEventListener('click', async () => {
+      const rec = {
+        id: generateUUID(),
+        season: $('season').value.trim(),
+        player: $('player').value.trim(),
+        match: $('match').value.trim(),
+        reason: $('reason').value.trim(),
+        amount: Number($('amount').value),
+        paid: $('paid').value === 'true',
+        createdAt: new Date().toISOString()
+      };
+      
+      if (!rec.player) {
+        alert('Please enter a player name');
+        return;
       }
       
-      const row = { id:rec.id, season:rec.season, player:rec.player, match:rec.match, reason:rec.reason, amount:rec.amount, paid:rec.paid, created_at:rec.createdAt };
-      console.log('Upserting to Supabase:', row);
-      
-      const { data, error } = await supabase.from('fines').upsert(row).select();
-      
-      if(error){ 
-        console.error('Supabase upsert error:', error);
-        alert('Save failed: '+error.message); 
+      if (inCloud()) {
+        await upsertCloud(rec);
+        await pull();
       } else {
-        console.log('✅ Successfully saved to Supabase:', data);
+        setData(getData().concat([rec]));
       }
-    }
-    async function deleteCloud(id){
-      if(!supabase){ alert('Supabase not available'); return; }
-      const { error } = await supabase.from('fines').delete().eq('id', id);
-      if(error){ alert('Delete failed: '+error.message); }
-    }
+      
+      $('reason').value = '';
+      $('amount').value = '';
+      $('reason').focus();
+    });
 
-    // Seed example if empty
-    if(getData().length===0){
+    // Export CSV
+    $('exportBtn').addEventListener('click', () => {
+      const rows = getData();
+      const headers = ["id", "season", "player", "match", "reason", "amount", "paid", "createdAt"];
+      const csv = [headers.join(",")].concat(rows.map(r => 
+        headers.map(h => {
+          const v = r[h] ?? "";
+          const need = /[\",\n]/.test(String(v));
+          const safe = String(v).replace(/\"/g, '""');
+          return need ? `"${safe}"` : safe;
+        }).join(",")
+      )).join("\n");
+      
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "fines.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Import CSV
+    $('importBtn').addEventListener('click', () => $('fileInput').click());
+    $('fileInput').addEventListener('change', async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      
+      const t = await f.text();
+      const [head, ...lines] = t.split(/\r?\n/).filter(Boolean);
+      const cols = head.split(",");
+      const idx = (h) => cols.indexOf(h);
+      const req = ["season", "player", "match", "reason", "amount", "paid"];
+      
+      if (!req.every(r => idx(r) >= 0)) {
+        alert("CSV must include: " + req.join(", "));
+        return;
+      }
+      
+      const parsed = lines.map(line => {
+        const out = [];
+        let cur = '', q = false;
+        for (let i = 0; i < line.length; i++) {
+          const c = line[i];
+          if (c == '"') {
+            if (q && line[i + 1] == '"') { cur += '"'; i++; }
+            else { q = !q; }
+          } else if (c == ',' && !q) {
+            out.push(cur);
+            cur = '';
+          } else {
+            cur += c;
+          }
+        }
+        out.push(cur);
+        
+        const g = (h) => (out[idx(h)] ?? '').replace(/^\"|\"$/g, '');
+        return {
+          id: generateUUID(),
+          season: g('season'),
+          player: g('player'),
+          match: g('match'),
+          reason: g('reason'),
+          amount: Number(g('amount') || 0),
+          paid: String(g('paid')).toLowerCase() === 'true',
+          createdAt: new Date().toISOString()
+        };
+      });
+      
+      if (inCloud()) {
+        for (const r of parsed) await upsertCloud(r);
+        await pull();
+      } else {
+        setData(getData().concat(parsed));
+      }
+      
+      e.target.value = '';
+      alert('Import complete!');
+    });
+
+    // Pull from cloud
+    $('pullBtn').addEventListener('click', pull);
+
+    // Clear local data
+    $('clearAll').addEventListener('click', () => {
+      if (!confirm('Clear all local data?')) return;
+      localStorage.removeItem(LS_KEY);
+      render([]);
+    });
+
+    // ========================================
+    // INIT
+    // ========================================
+    // Seed example data if empty
+    if (getData().length === 0) {
       setData([
-        { id: generateUUID(), season:"2025", player:"Vinit", match:"Match 1", reason:"Late arrival", amount:5, paid:false, createdAt:new Date().toISOString() },
-        { id: generateUUID(), season:"2025", player:"Vinit", match:"Match 1", reason:"Missing gear", amount:5, paid:false, createdAt:new Date().toISOString() },
-        { id: generateUUID(), season:"2025", player:"Vinit", match:"Match 2", reason:"Late", amount:5, paid:true, createdAt:new Date().toISOString() },
-        { id: generateUUID(), season:"2025", player:"Vinit", match:"Match 2", reason:"Arguing", amount:6, paid:false, createdAt:new Date().toISOString() }
+        { id: generateUUID(), season: "2025", player: "Vinit", match: "Match 1", reason: "Late arrival", amount: 5, paid: false, createdAt: new Date().toISOString() },
+        { id: generateUUID(), season: "2025", player: "Vinit", match: "Match 1", reason: "Missing gear", amount: 5, paid: false, createdAt: new Date().toISOString() },
+        { id: generateUUID(), season: "2025", player: "Vinit", match: "Match 2", reason: "Late", amount: 5, paid: true, createdAt: new Date().toISOString() },
+        { id: generateUUID(), season: "2025", player: "Vinit", match: "Match 2", reason: "Arguing", amount: 6, paid: false, createdAt: new Date().toISOString() }
       ]);
     }
+
+    // Check if already unlocked
+    (async () => {
+      const savedPass = localStorage.getItem(GATE_KEY);
+      if (savedPass && (savedPass === STATIC_PASSWORD_ADMIN || savedPass === STATIC_PASSWORD_PLAYER)) {
+        await unlock(savedPass);
+      }
+    })();
   </script>
 </body>
 </html>
