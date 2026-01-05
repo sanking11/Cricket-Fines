@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cricket Fines 2025 - Tracker</title>
   
+  <!-- Load Supabase from unpkg (often not blocked) -->
+  <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  
   <!-- Futuristic Cricket Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%2300ff88;stop-opacity:1'/><stop offset='100%' style='stop-color:%2300cc66;stop-opacity:1'/></linearGradient><filter id='glow'><feGaussianBlur stdDeviation='2' result='coloredBlur'/><feMerge><feMergeNode in='coloredBlur'/><feMergeNode in='SourceGraphic'/></feMerge></filter></defs><circle cx='50' cy='50' r='45' fill='%23001a0f' stroke='url(%23g)' stroke-width='3' filter='url(%23glow)'/><text x='50' y='65' font-size='45' text-anchor='middle' fill='url(%23g)' filter='url(%23glow)'>🏏</text><circle cx='50' cy='50' r='48' fill='none' stroke='url(%23g)' stroke-width='1' opacity='0.3'/></svg>" type="image/svg+xml">
   
@@ -212,6 +215,27 @@
     .locked .mask{ position:absolute; inset:0; backdrop-filter: blur(4px) saturate(120%); background: rgba(7,17,12,.35); pointer-events:none; }
     .locked .content *{ filter: blur(1px) brightness(.95); pointer-events:none; user-select:none; }
     .player-hidden{ display:none !important; }
+    
+    /* Error banner styles */
+    .error-banner {
+      background: rgba(255,68,68,0.2);
+      border: 2px solid var(--danger);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 18px;
+      color: #ff9999;
+    }
+    .error-banner h4 {
+      color: var(--danger);
+      margin: 0 0 8px 0;
+      font-family: 'Orbitron', sans-serif;
+    }
+    .error-banner code {
+      background: rgba(0,0,0,0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -220,6 +244,13 @@
   <div class="wrap">
     <h1>CRICKET FINES TRACKER 2025</h1>
     <p class="muted" style="margin-bottom:16px">Welcome to the club, where cricketers pay for their sins and every dropped catch costs you more than just runs!🏏💸</p>
+
+    <!-- Error banner for Supabase loading issues -->
+    <div id="supabaseError" class="error-banner hidden">
+      <h4>⚠️ Cloud Connection Issue</h4>
+      <p>Could not load Supabase library. This is usually caused by browser tracking prevention.</p>
+      <p><strong>To fix:</strong> Disable tracking protection for this site, or the app will work in local-only mode.</p>
+    </div>
 
     <!-- Static Gate -->
     <div class="card" id="gateCard">
@@ -434,23 +465,37 @@
   </footer>
 
   <script>
+    // ======= Check if Supabase loaded =======
+    let supabaseAvailable = false;
+    
+    function checkSupabase() {
+      if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+        supabaseAvailable = true;
+        console.log('✅ Supabase library loaded successfully');
+        return true;
+      }
+      console.warn('⚠️ Supabase library not available');
+      document.getElementById('supabaseError').classList.remove('hidden');
+      return false;
+    }
+    
+    // Check on load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', checkSupabase);
+    } else {
+      checkSupabase();
+    }
+
     // ======= Static gate passwords (obfuscated) =======
-    const _a = atob("VGVhbUZpbmVzQDIwMjU/");
-    const _b = atob("a3VtZXVmaW5lc0AyMDI1Pw==");
-    const STATIC_PASSWORD_ADMIN  = _a;
-    const STATIC_PASSWORD_PLAYER = _b;
+    const STATIC_PASSWORD_ADMIN  = "TeamFines@2025?";
+    const STATIC_PASSWORD_PLAYER = "kumeufines@2025?";
     const ROLE_KEY = "fines_role_v1";
     
-    // ======= Supabase Configuration (obfuscated) =======
-    const _c = atob("aHR0cHM6Ly96a29zc3RyaG1nd3Z3cGJkbnFxcy5zdXBhYmFzZS5jbw==");
-    const _d = atob("ZXlKaGJHY2lPaUpJVXpJMU5pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SnBjM01pT2lKemRYQmhZbUZ6WlNJc0luSmxaaUk2SW5wcmIzTnpkSEpvYldkM2RuZHdZbVJ1Y1hGeklpd2ljbTlzWlNJNkltRnViMjRpTENKcFlYUWlPakUzTmpJeU1UQXhNREVzSW1WNGNDSTZNakEzTnpjNE5qRXdNWDAuTU4yX21oVVpaNXgzMVdfQ245YTFzYncwUUZHOFhUXzhXVFA0Q1RCUVRSOA==");
-    const _e = atob("YWRtaW5AZmFrZTEubG9s");
-    const _f = atob("cGxheWVyc0BmYWtlMS5sb2w=");
-    
-    const SUPABASE_URL = _c;
-    const SUPABASE_ANON_KEY = _d;
-    const ADMIN_EMAIL = _e;
-    const PLAYER_EMAIL = _f;
+    // ======= Supabase Configuration =======
+    const SUPABASE_URL = "https://zkosstrhgmgvwpbdnqqs.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inprb3NzdHJobWd2d3BiZG5xcXMiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTc2MjIxMDEwMSwiZXhwIjoyMDc3Nzg2MTAxfQ.MN2_mhUZZ5x31W_Cn9a1sbw0QFG8XT_8WTP4CTBQTR8";
+    const ADMIN_EMAIL = "admin@fake1.lol";
+    const PLAYER_EMAIL = "players@fake1.lol";
     // =============================================================================
 
     // Local keys
@@ -490,7 +535,14 @@
     async function unlock(pass){
       if (!pass) { alert('Enter password'); return; }
       
+      console.log('🔐 Attempting unlock with password length:', pass.length);
+      console.log('🔐 Expected admin password:', STATIC_PASSWORD_ADMIN);
+      console.log('🔐 Expected player password:', STATIC_PASSWORD_PLAYER);
+      console.log('🔐 Password match admin?', pass === STATIC_PASSWORD_ADMIN);
+      console.log('🔐 Password match player?', pass === STATIC_PASSWORD_PLAYER);
+      
       if (pass === STATIC_PASSWORD_ADMIN){
+        console.log('✅ Admin password matched!');
         // Clear any old settings first
         localStorage.removeItem(CLOUD_MODE_KEY);
         
@@ -516,20 +568,18 @@
             if(error) {
               console.error('❌ Supabase login failed:', error);
               console.error('Error details:', JSON.stringify(error, null, 2));
-              alert('Supabase Authentication Failed!\n\nError: ' + error.message + '\n\nPlease check:\n1. User exists in Supabase Auth\n2. Password is correct: ' + pass + '\n3. Email confirmation (if required)');
+              // Don't show alert, just log - admin can still work locally
+              console.warn('Continuing without cloud auth - local mode will work');
             } else {
               console.log('✅ Supabase login successful!', data);
-              alert('✅ Successfully logged into Supabase!');
               // Load data from cloud
               await pull();
             }
           } catch(err) {
             console.error('❌ Supabase login exception:', err);
-            alert('Supabase login error: ' + err.message);
           }
         } else {
-          console.error('❌ Supabase object not initialized');
-          alert('Warning: Could not initialize Supabase. Check console for errors.');
+          console.warn('⚠️ Supabase not available - working in local mode');
         }
         
         showApp(true);
@@ -537,6 +587,7 @@
       }
       
       if (pass === STATIC_PASSWORD_PLAYER){
+        console.log('✅ Player password matched!');
         localStorage.setItem(ROLE_KEY, 'player');
         localStorage.setItem(GATE_KEY, pass);
         localStorage.setItem(CLOUD_MODE_KEY, 'cloud_read');
@@ -552,7 +603,6 @@
           });
           if(error) {
             console.error('Supabase login failed:', error.message);
-            alert('Warning: Could not connect to cloud. Some features may be limited.');
           } else {
             // Load data from cloud
             await pull();
@@ -563,7 +613,8 @@
         return;
       }
       
-      alert('Wrong password');
+      console.log('❌ Password did not match either admin or player');
+      alert('Wrong password. Please try again.\n\nHint: Check with your captain for the correct password.');
     }
 
     function showApp(yes){ 
@@ -649,30 +700,24 @@
     $('saveSettings').addEventListener('click', saveSettings);
 
     async function setupSupabase(){
+      if (!supabaseAvailable) {
+        console.warn('Supabase library not loaded - skipping setup');
+        supabase = null;
+        supaAuth = null;
+        return;
+      }
+      
       if(supaCfg.url && supaCfg.key){
-        // Load Supabase library if not already loaded
-        if(!window.supabase) {
-          try {
-            const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-            script.type = 'text/javascript';
-            await new Promise((resolve, reject) => {
-              script.onload = resolve;
-              script.onerror = reject;
-              document.head.appendChild(script);
-            });
-            // Wait for supabase to be available
-            await new Promise(resolve => setTimeout(resolve, 100));
-          } catch(err) {
-            console.error('Failed to load Supabase library:', err);
-            alert('Failed to load cloud library. Please refresh the page.');
-            return;
-          }
+        try {
+          const { createClient } = window.supabase;
+          supabase = createClient(supaCfg.url, supaCfg.key);
+          supaAuth = supabase.auth;
+          console.log('✅ Supabase client initialized');
+        } catch(err) {
+          console.error('Failed to create Supabase client:', err);
+          supabase = null;
+          supaAuth = null;
         }
-        
-        const { createClient } = window.supabase;
-        supabase = createClient(supaCfg.url, supaCfg.key);
-        supaAuth = supabase.auth;
       } else { 
         supabase=null; 
         supaAuth=null; 
@@ -681,8 +726,11 @@
       updateStatus();
     }
     
-    // Initialize Supabase on page load
-    setupSupabase();
+    // Initialize Supabase on page load (after checking if library is available)
+    setTimeout(() => {
+      checkSupabase();
+      setupSupabase();
+    }, 100);
 
     // Auth
     $('authSignIn').addEventListener('click', async()=>{
@@ -742,13 +790,14 @@
       });
       
       const parts=[];
-      if($('cloudMode').value==='local'){ parts.push('Local'); }
+      if(!supabaseAvailable) { parts.push('Local only (cloud unavailable)'); }
+      else if($('cloudMode').value==='local'){ parts.push('Local'); }
       else if($('cloudMode').value==='cloud_read'){ parts.push('Cloud read'); }
       else { parts.push('Cloud admin write'); }
       if(supaAuth?.user){ parts.push(`Signed in: ${$('authEmail').value||supaAuth.user.email||'user'}`); }
       $('status').textContent = (role==='admin' ? 'Admin • ' : 'Player • ') + parts.join(' • ');
-      $('statusCloud').classList[inCloud()?'remove':'add']('hidden');
-      $('statusRealtime').classList[realtimeOn()&&inCloud()?'remove':'add']('hidden');
+      $('statusCloud').classList[inCloud()&&supabaseAvailable?'remove':'add']('hidden');
+      $('statusRealtime').classList[realtimeOn()&&inCloud()&&supabaseAvailable?'remove':'add']('hidden');
 
       if(role==='player'){ 
         $('cloudMode').value='cloud_read'; 
@@ -831,7 +880,7 @@
           
           console.log('Toggling paid status:', id, 'New value:', patch.paid, 'canWrite:', canWrite(), 'inCloud:', inCloud());
           
-          if(inCloud()) {
+          if(inCloud() && supabase) {
             // In cloud mode - try to update Supabase
             console.log('Updating Supabase...');
             await upsertCloud(updatedRecord);
@@ -848,7 +897,7 @@
         btn.addEventListener('click', async (e)=>{
           const id = e.currentTarget.getAttribute('data-id');
           if(!confirm('Delete this fine?')) return;
-          if(canWrite()){ await deleteCloud(id); await pull(); } else { setData(getData().filter(x=>x.id!==id)); }
+          if(canWrite() && supabase){ await deleteCloud(id); await pull(); } else { setData(getData().filter(x=>x.id!==id)); }
         });
       });
 
@@ -893,8 +942,8 @@
         </div>`;
       }).join('');
 
-      document.getElementById('statusCloud').classList[inCloud()?'remove':'add']('hidden');
-      document.getElementById('statusRealtime').classList[realtimeOn()&&inCloud()?'remove':'add']('hidden');
+      document.getElementById('statusCloud').classList[inCloud()&&supabaseAvailable?'remove':'add']('hidden');
+      document.getElementById('statusRealtime').classList[realtimeOn()&&inCloud()&&supabaseAvailable?'remove':'add']('hidden');
     }
 
     function applyFilters(rows){
@@ -920,9 +969,9 @@
       if(inCloud() && !canWrite()){ alert('Cloud write disabled for this account/mode.'); return; }
       for(let i=0;i<n;i++){
         const r = rec();
-        if(inCloud()){ await upsertCloud(r); } else { setData(getData().concat([r])); }
+        if(inCloud() && supabase){ await upsertCloud(r); } else { setData(getData().concat([r])); }
       }
-      if(inCloud()) await pull();
+      if(inCloud() && supabase) await pull();
       $('reason').value=''; $('amount').value=''; $('reason').focus();
     }
 
@@ -947,12 +996,12 @@
         const g=(h)=> (out[idx(h)]??'').replace(/^\"|\"$/g,'');
         return { id: generateUUID(), season:g('season'), player:g('player'), match:g('match'), reason:g('reason'), amount:Number(g('amount')||0), paid:String(g('paid')).toLowerCase()==='true', createdAt:new Date().toISOString() };
       });
-      if(inCloud()){ for(const r of parsed) await upsertCloud(r); await pull(); } else { setData(getData().concat(parsed)); }
+      if(inCloud() && supabase){ for(const r of parsed) await upsertCloud(r); await pull(); } else { setData(getData().concat(parsed)); }
       e.target.value=''; alert('Import complete.');
     });
     $('pullBtn').addEventListener('click', pull);
     $('pushBtn').addEventListener('click', async ()=>{
-      if(!supabase){ alert('Add Supabase settings'); return; }
+      if(!supabase){ alert('Supabase not available'); return; }
       if(!canWrite()){ alert('Sign in as admin & choose Cloud — Admin write'); return; }
       if(!confirm('Replace ALL rows in cloud with local data?')) return;
       const { error: delErr } = await supabase.from('fines').delete().neq('id','00000000-0000-0000-0000-000000000000');
@@ -964,7 +1013,7 @@
 
     // Cloud helpers
     async function pull(){
-      if(!supabase){ alert('Add Supabase settings'); return; }
+      if(!supabase){ console.warn('Supabase not available for pull'); return; }
       const { data, error } = await supabase.from('fines').select('*').order('created_at',{ascending:false});
       if(error){ alert('Load failed: '+error.message); return; }
       const mapped=(data||[]).map(r=> ({ id:r.id, season:r.season, player:r.player, match:r.match, reason:r.reason, amount:Number(r.amount||0), paid:!!r.paid, createdAt:r.created_at }));
@@ -990,7 +1039,7 @@
       }
     }
     async function deleteCloud(id){
-      if(!supabase){ alert('Add Supabase settings'); return; }
+      if(!supabase){ alert('Supabase not available'); return; }
       const { error } = await supabase.from('fines').delete().eq('id', id);
       if(error){ alert('Delete failed: '+error.message); }
     }
